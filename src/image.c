@@ -26,7 +26,7 @@
 #   error "No imaging library"
 #endif
 
-struct image *image_load(char *name)
+struct image *image_load(const char *name)
 {
     struct image *img;
 #if defined(HAVE_SDL_IMAGE_H)
@@ -76,12 +76,12 @@ struct image *image_new(int width, int height)
     rmask = 0xff000000;
     gmask = 0x00ff0000;
     bmask = 0x0000ff00;
-    amask = 0x000000ff;
+    amask = 0x00000000;
 #   else
     rmask = 0x000000ff;
     gmask = 0x0000ff00;
     bmask = 0x00ff0000;
-    amask = 0xff000000;
+    amask = 0x00000000;
 #   endif
     priv = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32,
                                 rmask, gmask, bmask, amask);
@@ -134,6 +134,18 @@ void image_free(struct image *img)
 #endif
 
     free(img);
+}
+
+void image_save(struct image *img, const char *name)
+{
+#if defined(HAVE_SDL_IMAGE_H)
+    SDL_SaveBMP(img->priv, name);
+#elif defined(HAVE_IMLIB2_H)
+    imlib_context_set_image(img->priv);
+    imlib_save_image(name);
+#elif defined(HAVE_CV_H)
+    cvSaveImage(name, img->priv);
+#endif
 }
 
 int getgray(struct image *img, int x, int y, int *g)

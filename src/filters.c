@@ -120,6 +120,46 @@ struct image *filter_fill_holes(struct image *img)
     return dst;
 }
 
+struct image *filter_black_stuff(struct image *img)
+{
+    struct image *dst;
+    int x, y;
+    int r, ra, rb, g, b;
+
+    dst = image_new(img->width, img->height);
+
+    /* Remove vertical stuff */
+    for(y = 0; y < img->height; y++)
+        for(x = 0; x < img->width; x++)
+        {
+            getpixel(img, x, y, &r, &g, &b);
+            setpixel(dst, x, y, r, g, b);
+            if(y > 0 && y < img->height - 1)
+            {
+                getpixel(img, x, y - 1, &ra, &g, &b);
+                getpixel(img, x, y + 1, &rb, &g, &b);
+                if(r < ra && (r - ra) * (r - rb) > 5000)
+                    setpixel(dst, x, y, ra, ra, ra);
+            }
+        }
+
+    /* Remove horizontal stuff */
+    for(y = 0; y < img->height; y++)
+        for(x = 0; x < img->width; x++)
+        {
+            getpixel(img, x, y, &r, &g, &b);
+            if(x > 0 && x < img->width - 1)
+            {
+                getpixel(dst, x - 1, y, &ra, &g, &b);
+                getpixel(dst, x + 1, y, &rb, &g, &b);
+                if(r < ra && (r - ra) * (r - rb) > 5000)
+                    setpixel(dst, x, y, ra, ra, ra);
+            }
+        }
+
+    return dst;
+}
+
 struct image *filter_detect_lines(struct image *img)
 {
     struct image *dst;
@@ -165,15 +205,25 @@ struct image *filter_equalize(struct image *img, int threshold)
     struct image *dst;
     int x, y;
     int r, g, b;
+    int min = 0, max = 255;
 
     dst = image_new(img->width, img->height);
+
+    if(threshold < 0)
+    {
+        min = 255;
+        max = 0;
+        threshold = -threshold;
+    }
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
         {
             getpixel(img, x, y, &r, &g, &b);
-            if(r < threshold) r = 0; else r = 255;
-            setpixel(dst, x, y, r, r, r);
+            if(r < threshold)
+                setpixel(dst, x, y, min, min, min);
+            else
+                setpixel(dst, x, y, max, max, max);
         }
 
     return dst;
@@ -324,6 +374,37 @@ struct image *filter_contrast(struct image *img)
         {
             getgray(img, x, y, &r);
             setpixel(dst, x, y, histo[r], histo[r], histo[r]);
+        }
+
+    return dst;
+}
+
+struct image *filter_crop(struct image *img,
+                          int xmin, int ymin, int xmax, int ymax)
+{
+    struct image *dst;
+    int x, y;
+    int r, g, b;
+
+    if(xmin < 0)
+        xmin = 0;
+    if(ymin < 0)
+        ymin = 0;
+    if(xmax >= img->width)
+        xmax = img->width - 1;
+    if(ymax >= img->height)
+        ymax = img->height - 1;
+
+    if(xmin >= xmax || ymin >= ymax)
+        return NULL;
+
+    dst = image_new(xmax - xmin, ymax - ymin);
+
+    for(y = 0; y < dst->height; y++)
+        for(x = 0; x < dst->width; x++)
+        {
+            getpixel(img, xmin + x, ymin + y, &r, &g, &b);
+            setpixel(dst, x, y, r, g, b);
         }
 
     return dst;
