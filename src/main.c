@@ -126,6 +126,8 @@ int main(int argc, char *argv[])
             result = decode_test(img);
         else if(!strcmp(mode, "authimage"))
             result = decode_authimage(img);
+        else if(!strcmp(mode, "clubic"))
+            result = decode_clubic(img);
         else if(!strcmp(mode, "linuxfr"))
             result = decode_linuxfr(img);
         else if(!strcmp(mode, "phpbb"))
@@ -157,6 +159,11 @@ int main(int argc, char *argv[])
             {
                 dprintf("autodetected scode/trencaspammers captcha\n");
                 result = decode_scode(img);
+            }
+            else if(img->height <= 30 && count < 100)
+            {
+                dprintf("autodetected clubic captcha\n");
+                result = decode_clubic(img);
             }
             else if(img->height == 69)
             {

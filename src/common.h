@@ -22,6 +22,7 @@ void dprintf(const char *fmt, ...);
 
 /* available CAPTCHA decoders */
 char *decode_authimage(struct image *img);
+char *decode_clubic(struct image *img);
 char *decode_linuxfr(struct image *img);
 char *decode_phpbb(struct image *img);
 char *decode_scode(struct image *img);

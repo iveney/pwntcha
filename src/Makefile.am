@@ -9,6 +9,7 @@ pwntcha_SOURCES = \
     filters.c \
     common.h \
     authimage.c \
+    clubic.c \
     linuxfr.c \
     phpbb.c \
     scode.c \
