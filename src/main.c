@@ -17,6 +17,7 @@
 
 int main(int argc, char *argv[])
 {
+    struct image *img;
     char *result;
 
     if(argc != 2)
@@ -25,9 +26,19 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    result = slashdot_decode(argv[1]);
-    if(!result)
+    img = image_load(argv[1]);
+    if(!img)
+    {
+        fprintf(stderr, "cannot load %s\n", argv[1]);
         return -1;
+    }
+
+    result = decode_slashdot(img);
+    if(!result)
+    {
+        fprintf(stderr, "sorry, decoding failed\n");
+        return -1;
+    }
 
     printf("%s\n", result);
 

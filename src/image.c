@@ -24,7 +24,7 @@
 #   error "No imaging library"
 #endif
 
-struct image * load_image(char *name)
+struct image * image_load(char *name)
 {
     struct image * img;
 #if defined(HAVE_IMLIB2_H)
@@ -56,7 +56,7 @@ struct image * load_image(char *name)
     return img;
 }
 
-struct image * new_image(int width, int height)
+struct image * image_new(int width, int height)
 {
     struct image * img;
 #if defined(HAVE_IMLIB2_H)
@@ -130,7 +130,7 @@ int setpixel(struct image *img, int x, int y, int r, int g, int b)
     return 0;
 }
 
-void display_image(struct image *img)
+void image_display(struct image *img)
 {
 #if defined(HAVE_IMLIB2_H)
     //char name[BUFSIZ];

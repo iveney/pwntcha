@@ -34,29 +34,25 @@ int objects = 0, first = -1, last = -1;
 char *result;
 
 /* Main function */
-char * slashdot_decode(char *image)
+char * decode_slashdot(struct image *img)
 {
-    struct image *img, *tmp, *tmp2;
-
-    img = load_image(image);
-    if(img == NULL)
-        return NULL;
+    struct image *tmp, *tmp2;
 
     /* Slashdot captchas have 7 characters */
     result = malloc(8 * sizeof(char));
 
     /* Clean image a bit */
-    tmp = detect_lines(img);
-    tmp = fill_holes(tmp);
+    tmp = filter_detect_lines(img);
+    tmp = filter_fill_holes(tmp);
 
     /* Detect small objects to guess image orientation */
-    tmp2 = median(tmp);
-    tmp2 = equalize(tmp2);
+    tmp2 = filter_median(tmp);
+    tmp2 = filter_equalize(tmp2);
     count_objects(tmp2);
 
     /* Invert rotation and find glyphs */
     tmp = rotate(tmp);
-    tmp = median(tmp);
+    tmp = filter_median(tmp);
     tmp = find_glyphs(tmp);
 
     return result;
@@ -71,7 +67,7 @@ static struct image *count_objects(struct image *img)
     int x, y, i;
     int r, g, b;
 
-    dst = new_image(img->width, img->height);
+    dst = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
@@ -90,7 +86,7 @@ static struct image *count_objects(struct image *img)
                 if(r == 50 && g == 50 && b == 50)
                 {
                     gotblack = 1;
-                    flood_fill(dst, x, y, 255 - objects, 0, 0);
+                    filter_flood_fill(dst, x, y, 255 - objects, 0, 0);
                     objects++;
                 }
             }
@@ -119,7 +115,7 @@ static struct image *count_objects(struct image *img)
             if(first == -1)
                 first = i;
             last = i;
-            flood_fill(dst, objlist[i].xmin, objlist[i].ymin, 0, 0, 255);
+            filter_flood_fill(dst, objlist[i].xmin, objlist[i].ymin, 0, 0, 255);
         }
     }
 
@@ -153,7 +149,7 @@ static struct image *rotate(struct image *img)
         cosa = -cosa;
     }
 
-    dst = new_image(img->width * FACTOR, img->height * FACTOR);
+    dst = image_new(img->width * FACTOR, img->height * FACTOR);
 
     for(y = 0; y < img->height * FACTOR; y++)
         for(x = 0; x < img->width * FACTOR; x++)
@@ -186,7 +182,7 @@ static struct image *cut_cells(struct image *img)
     int x, y;
     int r, g, b;
 
-    dst = new_image(img->width, img->height);
+    dst = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
@@ -221,7 +217,7 @@ static struct image *find_glyphs(struct image *img)
     }
     glyphs[22];
     struct image *dst;
-    struct image *font = load_image(FONTNAME);
+    struct image *font = image_load(FONTNAME);
     int x, y, i = 0;
     int r, g, b;
     int xmin, xmax, ymin, ymax, incell = 0, count = 0, startx = 0, cur = 0;
@@ -233,7 +229,7 @@ static struct image *find_glyphs(struct image *img)
         exit(-1);
     }
 
-    dst = new_image(img->width, img->height);
+    dst = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)

@@ -24,7 +24,7 @@
 #define FONTNAME "share/font_dilated_half.png" // use with FACTOR = 1
 
 /* Functions */
-void flood_fill(struct image *img, int x, int y, int r, int g, int b)
+void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b)
 {
     int oldr, oldg, oldb;
     int nextr, nextg, nextb;
@@ -37,28 +37,28 @@ void flood_fill(struct image *img, int x, int y, int r, int g, int b)
 
     getpixel(img, x + 1, y, &nextr, &nextg, &nextb);
     if(nextr == oldr && nextg == oldg && nextb == oldb)
-        flood_fill(img, x + 1, y, r, g, b);
+        filter_flood_fill(img, x + 1, y, r, g, b);
 
     getpixel(img, x - 1, y, &nextr, &nextg, &nextb);
     if(nextr == oldr && nextg == oldg && nextb == oldb)
-        flood_fill(img, x - 1, y, r, g, b);
+        filter_flood_fill(img, x - 1, y, r, g, b);
 
     getpixel(img, x, y + 1, &nextr, &nextg, &nextb);
     if(nextr == oldr && nextg == oldg && nextb == oldb)
-        flood_fill(img, x, y + 1, r, g, b);
+        filter_flood_fill(img, x, y + 1, r, g, b);
 
     getpixel(img, x, y - 1, &nextr, &nextg, &nextb);
     if(nextr == oldr && nextg == oldg && nextb == oldb)
-        flood_fill(img, x, y - 1, r, g, b);
+        filter_flood_fill(img, x, y - 1, r, g, b);
 }
 
-struct image *fill_holes(struct image *img)
+struct image *filter_fill_holes(struct image *img)
 {
     struct image *dst;
     int x, y;
     int r, g, b;
 
-    dst = new_image(img->width, img->height);
+    dst = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
@@ -102,13 +102,13 @@ struct image *fill_holes(struct image *img)
     return dst;
 }
 
-struct image *detect_lines(struct image *img)
+struct image *filter_detect_lines(struct image *img)
 {
     struct image *dst;
     int x, y;
     int r, ra, rb, g, b;
 
-    dst = new_image(img->width, img->height);
+    dst = image_new(img->width, img->height);
 
     /* Remove white lines */
     for(y = 0; y < img->height; y++)
@@ -142,13 +142,13 @@ struct image *detect_lines(struct image *img)
     return dst;
 }
 
-struct image *equalize(struct image *img)
+struct image *filter_equalize(struct image *img)
 {
     struct image *dst;
     int x, y;
     int r, g, b;
 
-    dst = new_image(img->width, img->height);
+    dst = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
@@ -161,14 +161,14 @@ struct image *equalize(struct image *img)
     return dst;
 }
 
-struct image *trick(struct image *img)
+struct image *filter_trick(struct image *img)
 {
 #define TSIZE 3
     struct image *dst;
     int x, y, i, j, val, m, more, l, less;
     int r, g, b;
 
-    dst = new_image(img->width, img->height);
+    dst = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
@@ -207,14 +207,14 @@ struct image *trick(struct image *img)
     return dst;
 }
 
-struct image *smooth(struct image *img)
+struct image *filter_smooth(struct image *img)
 {
 #define SSIZE 3
     struct image *dst;
     int x, y, i, j, val;
     int r, g, b;
 
-    dst = new_image(img->width, img->height);
+    dst = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
@@ -238,14 +238,14 @@ struct image *smooth(struct image *img)
     return dst;
 }
 
-struct image *median(struct image *img)
+struct image *filter_median(struct image *img)
 {
 #define MSIZE 4
     struct image *dst;
     int x, y, i, j, val[MSIZE*MSIZE];
     int r, g, b;
 
-    dst = new_image(img->width, img->height);
+    dst = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)

@@ -18,21 +18,21 @@ struct image
 };
 
 /* available CAPTCHA decoders */
-char * slashdot_decode(char *image);
+char * decode_slashdot(struct image *img);
 
 /* image operations */
-struct image * load_image(char *name);
-struct image * new_image(int width, int height);
+struct image * image_load(char *name);
+struct image * image_new(int width, int height);
 int getgray(struct image *img, int x, int y, int *g);
 int getpixel(struct image *img, int x, int y, int *r, int *g, int *b);
 int setpixel(struct image *img, int x, int y, int r, int g, int b);
 
 /* image filters */
-void flood_fill(struct image *img, int x, int y, int r, int g, int b);
-struct image *fill_holes(struct image *img);
-struct image *detect_lines(struct image *img);
-struct image *equalize(struct image *img);
-struct image *trick(struct image *img);
-struct image *smooth(struct image *img);
-struct image *median(struct image *img);
+void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b);
+struct image *filter_fill_holes(struct image *img);
+struct image *filter_detect_lines(struct image *img);
+struct image *filter_equalize(struct image *img);
+struct image *filter_trick(struct image *img);
+struct image *filter_smooth(struct image *img);
+struct image *filter_median(struct image *img);
 
