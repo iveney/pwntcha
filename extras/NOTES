@@ -11,3 +11,9 @@ is NOT under the WTFPL, it is GPL.
 
   Usage: php4 usercp_confirm.php > font_phpbb.png
 
+getphpbbcaptcha.py
+------------------
+   Download a phpBB captcha from www.phpbb.com and output it to stdout.
+
+  Usage: getphpbbcaptcha.py > captcha.png
+
