@@ -22,13 +22,29 @@ static char find_glyph(struct image *img, int xmin, int xmax);
 char *decode_scode(struct image *img)
 {
     char *result;
-    int stats[256];
+    int stats[3 * 256];
     int x, y, i, incell = 0, cur = 0, xmin = 0;
     int r, g, b;
     struct image *tmp1;
 
     /* allocate enough place */
     result = malloc(1024 * sizeof(char));
+
+    tmp1 = filter_dup(img);
+
+    /* Remove border */
+    getpixel(img, 1, 1, &r, &g, &b);
+    for(y = 0; y < img->height; y++)
+    {
+        setpixel(tmp1, 0, y, r, g, b);
+        setpixel(tmp1, img->width - 1, y, r, g, b);
+    }
+
+    for(x = 0; x < img->width; x++)
+    {
+        setpixel(tmp1, x, 0, r, g, b);
+        setpixel(tmp1, x, img->height - 1, r, g, b);
+    }
 
     /* Detect background: first and last 3 lines */
     for(i = 0; i < 256; i++)
@@ -37,20 +53,18 @@ char *decode_scode(struct image *img)
     for(y = 0; y < 3; y++)
         for(x = 0; x < img->width; x++)
         {
-            getpixel(img, x, y, &r, &g, &b);
-            stats[r]++;
-            getpixel(img, x, img->width - 1 - y, &r, &g, &b);
-            stats[r]++;
+            getpixel(tmp1, x, y, &r, &g, &b);
+            stats[r + g + b]++;
+            getpixel(tmp1, x, img->height - 1 - y, &r, &g, &b);
+            stats[r + g + b]++;
         }
 
     /* Set non-background colours to 0 */
-    tmp1 = image_new(img->width, img->height);
-
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
         {
-            getpixel(img, x, y, &r, &g, &b);
-            if(stats[r])
+            getpixel(tmp1, x, y, &r, &g, &b);
+            if(stats[r + g + b])
                 setpixel(tmp1, x, y, 255, 255, 255);
             else
                 setpixel(tmp1, x, y, 0, 0, 0);
