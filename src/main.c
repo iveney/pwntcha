@@ -138,6 +138,8 @@ int main(int argc, char *argv[])
             result = decode_clubic(img);
         else if(!strcmp(mode, "linuxfr"))
             result = decode_linuxfr(img);
+        else if(!strcmp(mode, "paypal"))
+            result = decode_paypal(img);
         else if(!strcmp(mode, "phpbb"))
             result = decode_phpbb(img);
         else if(!strcmp(mode, "scode"))
@@ -159,6 +161,11 @@ int main(int argc, char *argv[])
             {
                 dprintf("autodetected linuxfr captcha\n");
                 result = decode_linuxfr(img);
+            }
+            else if(img->width == 208 && img->height == 26)
+            {
+                dprintf("autodetected Paypal captcha\n");
+                result = decode_paypal(img);
             }
             else if(img->width == 320 && img->height == 50)
             {
