@@ -35,7 +35,6 @@ struct image *image_load(const char *name);
 struct image *image_new(int width, int height);
 void image_free(struct image *img);
 void image_save(struct image *img, const char *name);
-void image_display(struct image *img);
 int getgray(struct image *img, int x, int y, int *g);
 int getpixel(struct image *img, int x, int y, int *r, int *g, int *b);
 int setpixel(struct image *img, int x, int y, int r, int g, int b);

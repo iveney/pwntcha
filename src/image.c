@@ -200,25 +200,3 @@ int setpixel(struct image *img, int x, int y, int r, int g, int b)
     return 0;
 }
 
-void image_display(struct image *img)
-{
-#if defined(HAVE_SDL_IMAGE_H)
-    //Nothing to do here
-#elif defined(HAVE_IMLIB2_H)
-    //char name[BUFSIZ];
-    //static int i = 0;
-    //sprintf(name, "image%i-%ix%i.png", i++, img->width, img->height);
-    //imlib_context_set_image(img->priv);
-    //imlib_save_image(name);
-    //fprintf(stderr, "saved to %s\n", name);
-#elif defined(HAVE_CV_H)
-    char name[BUFSIZ];
-    sprintf(name, "Image %p (%i x %i)", img, img->width, img->height);
-    cvNamedWindow(name, 0);
-    cvShowImage(name, img->priv);
-    cvResizeWindow(name, img->width * 2, img->height * 2 + 50);
-    while((unsigned char)cvWaitKey(0) != 0x1b)
-        ;
-#endif
-}
-
