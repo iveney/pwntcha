@@ -18,16 +18,17 @@
 #include "config.h"
 #include "common.h"
 
+static struct image *count_objects(struct image *img);
+static struct image *rotate(struct image *img);
+static struct image *cut_cells(struct image *img);
+static struct image *find_glyphs(struct image *img);
+
 /* Our macros */
 #define FACTOR 1
 #define FONTNAME "share/font_slashdot.png" // use with FACTOR = 1
 //#define FONTNAME "share/font.png" // use with FACTOR = 2
 //#define FONTNAME "share/font_dilated.png" // use with FACTOR = 2
-
-static struct image *count_objects(struct image *img);
-static struct image *rotate(struct image *img);
-static struct image *cut_cells(struct image *img);
-static struct image *find_glyphs(struct image *img);
+static struct image *font = NULL;
 
 /* Global stuff */
 struct { int xmin, ymin, xmax, ymax; } objlist[100];
@@ -237,7 +238,6 @@ static struct image *find_glyphs(struct image *img)
     }
     glyphs[22];
     struct image *dst;
-    struct image *font = image_load(FONTNAME);
     int x, y, i = 0;
     int r, g, b;
     int xmin, xmax, ymin, ymax, incell = 0, count = 0, startx = 0, cur = 0;
@@ -245,8 +245,12 @@ static struct image *find_glyphs(struct image *img)
 
     if(!font)
     {
-        fprintf(stderr, "cannot load font %s\n", FONTNAME);
-        exit(-1);
+        font = image_load(FONTNAME);
+        if(!font)
+        {
+            fprintf(stderr, "cannot load font %s\n", FONTNAME);
+            exit(-1);
+        }
     }
 
     dst = image_new(img->width, img->height);

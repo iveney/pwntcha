@@ -19,6 +19,7 @@
 
 /* Our macros */
 #define FONTNAME "share/font_phpbb.png"
+static struct image *font = NULL;
 
 /* Main function */
 char *decode_phpbb(struct image *img)
@@ -26,7 +27,6 @@ char *decode_phpbb(struct image *img)
     char all[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
     char *result;
     struct image *tmp1, *tmp2, *tmp3;
-    struct image *font = image_load(FONTNAME);
     int x, y, i = 0;
     int r, g, b;
     int xmin, xmax, ymin, ymax, cur, offset = -1;
@@ -34,8 +34,12 @@ char *decode_phpbb(struct image *img)
 
     if(!font)
     {
-        fprintf(stderr, "cannot load font %s\n", FONTNAME);
-        exit(-1);
+        font = image_load(FONTNAME);
+        if(!font)
+        {
+            fprintf(stderr, "cannot load font %s\n", FONTNAME);
+            exit(-1);
+        }
     }
 
     /* phpBB captchas have 6 characters */
@@ -125,7 +129,6 @@ char *decode_phpbb(struct image *img)
     image_free(tmp1);
     image_free(tmp2);
     image_free(tmp3);
-    image_free(font);
 
     return result;
 }

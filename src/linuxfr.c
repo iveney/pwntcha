@@ -18,6 +18,7 @@
 #include "common.h"
 
 #define FONTNAME "share/font_linuxfr.png"
+static struct image *font = NULL;
 
 /* Main function */
 char *decode_linuxfr(struct image *img)
@@ -26,15 +27,18 @@ char *decode_linuxfr(struct image *img)
                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                  "0123456789";
     char *result;
-    struct image *tmp, *font;
+    struct image *tmp;
     int x, y, r, g, b, i, j, c;
     int stats[40];
 
-    font = image_load(FONTNAME);
     if(!font)
     {
-        fprintf(stderr, "cannot load font %s\n", FONTNAME);
-        exit(-1);
+        font = image_load(FONTNAME);
+        if(!font)
+        {
+            fprintf(stderr, "cannot load font %s\n", FONTNAME);
+            exit(-1);
+        }
     }
 
     /* linuxfr captchas have 7 characters */
@@ -141,7 +145,6 @@ char *decode_linuxfr(struct image *img)
     }
 
     image_free(tmp);
-    image_free(font);
 
     if(strlen(result) != 7)
     {

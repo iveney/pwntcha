@@ -18,21 +18,25 @@
 #include "common.h"
 
 #define FONTNAME "share/font_vbulletin.png"
+static struct image *font = NULL;
 
 /* Main function */
 char *decode_vbulletin(struct image *img)
 {
     char all[] = "2346789ABCDEFGHJKLMNPRTWXYZ";
     char *result;
-    struct image *tmp1, *tmp2, *tmp3, *font;
+    struct image *tmp1, *tmp2, *tmp3;
     int limits[6] = { 26, 53, 80, 107, 134, 160 };
     int x, y, r, g, b, i, j;
 
-    font = image_load(FONTNAME);
     if(!font)
     {
-        fprintf(stderr, "cannot load font %s\n", FONTNAME);
-        exit(-1);
+        font = image_load(FONTNAME);
+        if(!font)
+        {
+            fprintf(stderr, "cannot load font %s\n", FONTNAME);
+            exit(-1);
+        }
     }
 
     /* vBulletin captchas have 6 characters */
@@ -134,7 +138,6 @@ char *decode_vbulletin(struct image *img)
     image_free(tmp1);
     image_free(tmp2);
     image_free(tmp3);
-    image_free(font);
 
     return result;
 }
