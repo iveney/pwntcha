@@ -40,6 +40,16 @@ struct image *image_load(const char *name)
     if(!priv)
         return NULL;
 
+#if defined(HAVE_SDL_IMAGE_H)
+    if(priv->format->BytesPerPixel == 1)
+    {
+        img = image_new(priv->w, priv->h);
+        SDL_BlitSurface(priv, NULL, img->priv, NULL);
+        SDL_FreeSurface(priv);
+        return img;
+    }
+#endif
+
     img = malloc(sizeof(struct image));
 #if defined(HAVE_SDL_IMAGE_H)
     img->width = priv->w;
