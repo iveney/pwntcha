@@ -71,18 +71,22 @@ struct font *font_load_variable(char *file, char *chars)
     font->size = strlen(chars);
     font->glyphs = malloc(font->size * sizeof(struct glyph));
 
-    for(x = 0, i = 0, xmin = 0; x < font->img->width && i < font->size; x++)
+    for(x = 0, i = 0, xmin = 0; x <= font->img->width && i < font->size; x++)
     {
         int found = 0;
-        for(y = 0; y < font->img->height; y++)
-        {
-            getpixel(font->img, x, y, &r, &g, &b);
-            if(r < 128)
+        if(x != font->img->width)
+            for(y = 0; y < font->img->height; y++)
             {
-                found = 1;
-                count += (255 - r);
+                getpixel(font->img, x, y, &r, &g, &b);
+                if(r < 240)
+                {
+                    found = 1;
+                    count += (255 - r);
+                }
             }
-        }
+        else
+          found = 0;
+
         if(found && !incell)
         {
             incell = 1;
@@ -102,7 +106,7 @@ struct font *font_load_variable(char *file, char *chars)
                 for(newx = xmin; newx < xmax; newx++)
                 {
                     getpixel(font->img, newx, y, &r, &g, &b);
-                    if(r < 128)
+                    if(r < 240)
                     {
                         gotit = 1;
                         break;
@@ -131,7 +135,8 @@ struct font *font_load_variable(char *file, char *chars)
 
     if(i != font->size)
     {
-        printf("%s: could not find %i glyphs in font\n", argv0, font->size);
+        fprintf(stderr, "%s: could only find %i of %i glyphs in font %s\n",
+                argv0, i, font->size, file);
         image_free(font->img);
         free(font->glyphs);
         free(font);
