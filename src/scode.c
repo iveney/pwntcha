@@ -83,8 +83,8 @@ char *decode_scode(struct image *img)
     }
 
     image_free(tmp1);
+    result[cur] = '\0';
 
-    result[cur] = 0;
     return result;
 }
 
