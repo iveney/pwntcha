@@ -20,12 +20,19 @@ AC_TYPE_SIZE_T
 
 AC_CHECK_FUNCS(getopt_long)
 
+# Use DevIL?
+#AC_CHECK_HEADERS(IL/il.h,
+# [ac_cv_my_have_il="yes"],
+# [ac_cv_my_have_il="no"])
+#CPPFLAGS="${save_CPPFLAGS}"
+#AM_CONDITIONAL(USE_IL, test "${ac_cv_my_have_il}" = "yes")
+
 # Use Windows?
-AC_CHECK_HEADERS(olectl.h,
- [ac_cv_my_have_ole="yes"],
- [ac_cv_my_have_ole="no"])
-CPPFLAGS="${save_CPPFLAGS}"
-AM_CONDITIONAL(USE_OLE, test "${ac_cv_my_have_ole}" = "yes")
+#AC_CHECK_HEADERS(olectl.h,
+# [ac_cv_my_have_ole="yes"],
+# [ac_cv_my_have_ole="no"])
+#CPPFLAGS="${save_CPPFLAGS}"
+#AM_CONDITIONAL(USE_OLE, test "${ac_cv_my_have_ole}" = "yes")
 
 # Use SDL?
 ac_cv_my_have_sdl="no"
@@ -66,8 +73,8 @@ AC_CHECK_HEADERS(Imlib2.h,
 CPPFLAGS="${save_CPPFLAGS}"
 AM_CONDITIONAL(USE_IMLIB2, test "${ac_cv_my_have_imlib2}" = "yes")
 
-if test "${ac_cv_my_have_sdl}" = "yes" -a "${ac_cv_my_have_imlib2}" = "no" -a "${ac_cv_my_have_opencv}" = "no"; then
-  AC_MSG_ERROR([[cannot find SDL_Image, Imlib2 or OpenCV, please install one of them]])
+if test "${ac_cv_my_have_il}" = "no" -a "${ac_cv_my_have_ole}" = "no" -a "${ac_cv_my_have_sdl}" = "no" -a "${ac_cv_my_have_imlib2}" = "no" -a "${ac_cv_my_have_opencv}" = "no"; then
+  AC_MSG_ERROR([[cannot find DevIL, OLE, SDL_Image, Imlib2 or OpenCV, please install one of them]])
 fi
 
 AC_OUTPUT([

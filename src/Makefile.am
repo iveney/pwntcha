@@ -18,11 +18,16 @@ pwntcha_CFLAGS = $(ADDITIONAL_CFLAGS) -Wall -O6
 pwntcha_LDFLAGS = $(ADDITIONAL_LDFLAGS)
 pwntcha_LDADD = $(ADDITIONAL_LDADD)
 
-if USE_OLE
-ADDITIONAL_CFLAGS =
-ADDITIONAL_LDFLAGS =
-ADDITIONAL_LDADD = -luuid -loleaut32 -lole32 -lgdi32
-else
+#if USE_DEVIL
+#ADDITIONAL_CFLAGS =
+#ADDITIONAL_LDFLAGS =
+#ADDITIONAL_LDADD = -lDevIL
+#else
+#if USE_OLE
+#ADDITIONAL_CFLAGS =
+#ADDITIONAL_LDFLAGS =
+#ADDITIONAL_LDADD = -luuid -loleaut32 -lole32 -lgdi32
+#else
 if USE_SDL
 ADDITIONAL_CFLAGS = `sdl-config --cflags`
 ADDITIONAL_LDFLAGS = `sdl-config --libs` -lSDL_image
@@ -44,5 +49,6 @@ ADDITIONAL_LDADD =
 endif
 endif
 endif
-endif
+#endif
+#endif
 
