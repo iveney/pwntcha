@@ -17,6 +17,9 @@ struct image
     void *priv;
 };
 
+/* debug function */
+void dprintf(const char *fmt, ...);
+
 /* available CAPTCHA decoders */
 char *decode_phpbb(struct image *img);
 char *decode_slashdot(struct image *img);
