@@ -6,8 +6,9 @@ DIST_SUBDIRS = $(SUBDIRS) extras testsuite
 EXTRA_DIST = \
 	bootstrap \
 	ChangeLog \
-	share/font_slashdot.png \
+	share/font_linuxfr.png \
 	share/font_phpbb.png \
+	share/font_slashdot.png \
 	share/font_vbulletin.png \
 	$(NULL)
 

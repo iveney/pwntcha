@@ -124,6 +124,8 @@ int main(int argc, char *argv[])
 
         if(!strcmp(mode, "test"))
             result = decode_test(img);
+        else if(!strcmp(mode, "linuxfr"))
+            result = decode_linuxfr(img);
         else if(!strcmp(mode, "phpbb"))
             result = decode_phpbb(img);
         else if(!strcmp(mode, "scode"))
@@ -134,7 +136,12 @@ int main(int argc, char *argv[])
             result = decode_vbulletin(img);
         else
         {
-            if(img->width == 320 && img->height == 50)
+            if(img->width == 100 && img->height == 40)
+            {
+                dprintf("autodetected linuxfr captcha\n");
+                result = decode_linuxfr(img);
+            }
+            else if(img->width == 320 && img->height == 50)
             {
                 dprintf("autodetected phpBB captcha\n");
                 result = decode_phpbb(img);

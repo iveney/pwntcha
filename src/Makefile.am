@@ -8,6 +8,7 @@ pwntcha_SOURCES = \
     image.c \
     filters.c \
     common.h \
+    linuxfr.c \
     phpbb.c \
     scode.c \
     slashdot.c \

@@ -2,7 +2,8 @@ NULL =
 
 EXTRA_DIST = \
 	NOTES \
-	usercp_confirm.php \
+	font_linuxfr.php \
 	getphpbbcaptcha.py \
+	usercp_confirm.php \
 	$(NULL)
 

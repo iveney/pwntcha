@@ -17,3 +17,8 @@ getphpbbcaptcha.py
 
   Usage: getphpbbcaptcha.py > captcha.png
 
+font_linuxfr.php
+----------------
+   This file is used to create the linuxfr font.
+
+  Usage: php4 font_linuxfr.php > font_linuxfr.png
