@@ -26,7 +26,7 @@ char *decode_authimage(struct image *img)
 {
     char *all = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     char *result;
-    struct image *tmp1, *tmp2, *tmp3;
+    struct image *tmp;
     int x, y, r, g, b, i;
 
     if(!font)
@@ -46,10 +46,11 @@ char *decode_authimage(struct image *img)
     memset(result, '\0', 7);
 
     /* half the captchas are inverse video; we set them back to normal */
-    tmp1 = filter_scale(img, 2.0);
-    getpixel(img, 0, 0, &r, &g, &b);
-    tmp2 = filter_equalize(tmp1, r * 3 / 4);
-    tmp3 = filter_smooth(tmp2);
+    tmp = image_dup(img);
+    filter_scale(tmp, 2.0);
+    getpixel(tmp, 0, 0, &r, &g, &b);
+    filter_equalize(tmp, r * 3 / 4);
+    filter_smooth(tmp);
 
     for(i = 0; i < 6; i++)
     {
@@ -64,7 +65,7 @@ char *decode_authimage(struct image *img)
                     int newx, newy, r2;
                     newx = 35.0 + (x + 6 * i) * 218.0 / 34.0 + y * 5.0 / 6.0 + 0.5;
                     newy = 33.0 - (x + 6 * i) * 18.0 / 34.0 + y * 42.0 / 6.0 + 0.5;
-                    getpixel(tmp3, newx, newy, &r, &g, &b);
+                    getpixel(tmp, newx, newy, &r, &g, &b);
                     getpixel(font, x + 6 * ch, y, &r2, &g, &b);
                     r = (r < 220) ? 0 : 255;
                     diff += (r - r2) * (r - r2);
@@ -79,9 +80,7 @@ char *decode_authimage(struct image *img)
         result[i] = all[minch];
     }
 
-    image_free(tmp3);
-    image_free(tmp2);
-    image_free(tmp1);
+    image_free(tmp);
 
     return result;
 }

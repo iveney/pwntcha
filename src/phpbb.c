@@ -26,7 +26,7 @@ char *decode_phpbb(struct image *img)
 {
     char all[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
     char *result;
-    struct image *tmp1, *tmp2, *tmp3;
+    struct image *tmp1, *tmp2;
     int x, y, i = 0;
     int r, g, b;
     int xmin, xmax, ymin, ymax, cur, offset = -1;
@@ -48,18 +48,20 @@ char *decode_phpbb(struct image *img)
     result = malloc(7 * sizeof(char));
     strcpy(result, "      ");
 
-    tmp1 = filter_smooth(img);
-    tmp2 = filter_equalize(tmp1, 128);
-    tmp3 = image_new(img->width, img->height);
+    tmp1 = image_dup(img);
+    tmp2 = image_new(img->width, img->height);
+
+    filter_smooth(tmp1);
+    filter_equalize(tmp1, 128);
 
     for(x = 0; x < img->width; x++)
         for(y = 0; y < img->height; y++)
         {
-            getpixel(tmp2, x, y, &r, &g, &b);
+            getpixel(tmp1, x, y, &r, &g, &b);
             if(r == 0 && offset == -1)
                 offset = x;
             getpixel(img, x, y, &r, &g, &b);
-            setpixel(tmp3, x, y, 255, g, 255);
+            setpixel(tmp2, x, y, 255, g, 255);
         }
 
     for(cur = 0; cur < 6; cur++)
@@ -89,7 +91,7 @@ char *decode_phpbb(struct image *img)
                         {
                             int r2;
                             getgray(font, xmin + z, ymin + t, &r);
-                            getgray(tmp2, x + z, y + t, &r2);
+                            getgray(tmp1, x + z, y + t, &r2);
                             if(r > r2)
                                 dist += r - r2;
                             else
@@ -123,8 +125,8 @@ char *decode_phpbb(struct image *img)
                 int r2;
                 getpixel(font, xmin + x, ymin + y, &r2, &g, &b);
                 if(r2 > 128) continue;
-                getpixel(tmp3, distx + x, disty + y, &r, &g, &b);
-                setpixel(tmp3, distx + x, disty + y, r2, g, b);
+                getpixel(tmp2, distx + x, disty + y, &r, &g, &b);
+                setpixel(tmp2, distx + x, disty + y, r2, g, b);
             }
 
         offset = distx + xmax - xmin;
@@ -133,7 +135,6 @@ char *decode_phpbb(struct image *img)
 
     image_free(tmp1);
     image_free(tmp2);
-    image_free(tmp3);
 
     return result;
 }

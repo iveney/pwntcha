@@ -18,10 +18,7 @@
 #include "config.h"
 #include "common.h"
 
-static struct image *fill_white_holes(struct image *img);
-static struct image *rotate(struct image *img);
-static struct image *cut_cells(struct image *img);
-static struct image *find_glyphs(struct image *img);
+static void fill_white_holes(struct image *img);
 
 /* Our macros */
 #define FACTOR 1
@@ -38,7 +35,7 @@ char *result;
 /* Main function */
 char *decode_xanga(struct image *img)
 {
-    struct image *tmp1, *tmp2, *tmp3, *tmp4, *tmp5, *tmp6, *tmp7;
+    struct image *tmp;
 
     /* Initialise local data */
     objects = 0;
@@ -49,38 +46,33 @@ char *decode_xanga(struct image *img)
     result = malloc(8 * sizeof(char));
     strcpy(result, "       ");
 
-image_save(img, "xanga1.bmp");
+    tmp = image_dup(img);
+image_save(tmp, "xanga1.bmp");
     /* Clean image a bit */
-//    tmp1 = filter_equalize(img, 200);
-    tmp1 = filter_contrast(img);
-    //tmp1 = filter_detect_lines(img);
-image_save(tmp1, "xanga2.bmp");
-    tmp2 = fill_white_holes(tmp1);
-//    tmp2 = filter_fill_holes(tmp1);
-image_save(tmp2, "xanga3.bmp");
-    //tmp3 = filter_detect_lines(tmp2);
-//    tmp3 = filter_median(tmp2);
-//image_save(tmp3, "xanga4.bmp");
-    tmp3 = filter_equalize(tmp2, 128);
-image_save(tmp3, "xanga4.bmp");
+//    filter_equalize(tmp, 200);
+    filter_contrast(tmp);
+    //filter_detect_lines(tmp);
+image_save(tmp, "xanga2.bmp");
+    fill_white_holes(tmp);
+//    filter_fill_holes(tmp);
+image_save(tmp, "xanga3.bmp");
+    //filter_detect_lines(tmp);
+//    filter_median(tmp);
+//image_save(tmp, "xanga4.bmp");
+    filter_equalize(tmp, 128);
+image_save(tmp, "xanga4.bmp");
 return NULL;
 
     /* Detect small objects to guess image orientation */
-    tmp3 = filter_median(tmp2);
-    tmp4 = filter_equalize(tmp3, 200);
+    filter_median(tmp);
+    filter_equalize(tmp, 200);
 
     /* Invert rotation and find glyphs */
-    tmp5 = rotate(tmp2);
-    tmp6 = filter_median(tmp5);
+    rotate(tmp);
+    filter_median(tmp);
 
     /* Clean up our mess */
-    image_free(tmp1);
-    image_free(tmp2);
-    image_free(tmp3);
-    image_free(tmp4);
-    image_free(tmp5);
-    image_free(tmp6);
-    image_free(tmp7);
+    image_free(tmp);
 
     /* aaaaaaa means decoding failed */
     if(!strcmp(result, "aaaaaaa"))
@@ -91,19 +83,19 @@ return NULL;
 
 /* The following functions are local */
 
-static struct image *fill_white_holes(struct image *img)
+static void fill_white_holes(struct image *img)
 {
-    struct image *dst;
+    struct image *tmp;
     int x, y, i;
     int r, g, b;
 
-    dst = image_new(img->width, img->height);
+    tmp = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
         {
             getpixel(img, x, y, &r, &g, &b);
-            setpixel(dst, x, y, r, g, b);
+            setpixel(tmp, x, y, r, g, b);
         }
 
     for(y = 1; y < img->height - 1; y++)
@@ -123,9 +115,10 @@ static struct image *fill_white_holes(struct image *img)
             count += r;
             if(count > 600)
                 continue;
-            setpixel(dst, x, y, count / 5, count / 5, count / 5);
+            setpixel(tmp, x, y, count / 5, count / 5, count / 5);
         }
 
-    return dst;
+    image_swap(tmp, img);
+    image_free(tmp);
 }
 

@@ -37,25 +37,25 @@ char *decode_test(struct image *img);
 /* image operations */
 struct image *image_load(const char *name);
 struct image *image_new(int width, int height);
+struct image *image_dup(struct image *img);
 void image_free(struct image *img);
 void image_save(struct image *img, const char *name);
+void image_swap(struct image *img1, struct image *img2);
 int getgray(struct image *img, int x, int y, int *g);
 int getpixel(struct image *img, int x, int y, int *r, int *g, int *b);
 int setpixel(struct image *img, int x, int y, int r, int g, int b);
 
 /* image filters */
 void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b);
-struct image *filter_fill_holes(struct image *img);
-struct image *filter_dup(struct image *img);
-struct image *filter_scale(struct image *img, float ratio);
-struct image *filter_black_stuff(struct image *img);
-struct image *filter_detect_lines(struct image *img);
-struct image *filter_equalize(struct image *img, int threshold);
-struct image *filter_trick(struct image *img);
-struct image *filter_smooth(struct image *img);
-struct image *filter_median(struct image *img);
-struct image *filter_contrast(struct image *img);
-struct image *filter_crop(struct image *img,
-                          int xmin, int ymin, int xmax, int ymax);
+void filter_fill_holes(struct image *img);
+void filter_scale(struct image *img, float ratio);
+void filter_black_stuff(struct image *img);
+void filter_detect_lines(struct image *img);
+void filter_equalize(struct image *img, int threshold);
+void filter_trick(struct image *img);
+void filter_smooth(struct image *img);
+void filter_median(struct image *img);
+void filter_contrast(struct image *img);
+void filter_crop(struct image *img, int xmin, int ymin, int xmax, int ymax);
 int filter_count(struct image *img);
 

@@ -21,7 +21,7 @@
 /* Our macros */
 #define FONTNAME "font_phpbb.png"
 
-static struct image *find_glyphs(struct image *img);
+static void find_glyphs(struct image *img);
 
 /* Global stuff */
 struct { int xmin, ymin, xmax, ymax; } objlist[100];
@@ -31,7 +31,7 @@ char *result;
 /* Main function */
 char *decode_test(struct image *img)
 {
-    struct image *tmp1, *tmp2, *tmp3, *tmp4, *tmp5, *tmp6, *tmp7;
+    struct image *tmp;
 
     /* Initialise local data */
     objects = 0;
@@ -41,30 +41,27 @@ char *decode_test(struct image *img)
     /* phpBB captchas have 6 characters */
     result = malloc(7 * sizeof(char));
 
-    tmp1 = filter_smooth(img);
-    tmp2 = filter_median(tmp1);
-    tmp3 = filter_equalize(tmp2, 130);
-    tmp4 = filter_median(tmp3);
-    tmp5 = find_glyphs(tmp3);
+    tmp = image_dup(img);
+    filter_smooth(tmp);
+    filter_median(tmp);
+    filter_equalize(tmp, 130);
+    filter_median(tmp);
+    find_glyphs(tmp);
 
-    image_free(tmp1);
-    image_free(tmp2);
-    image_free(tmp3);
-    image_free(tmp4);
-    image_free(tmp5);
+    image_free(tmp);
 
     return result;
 }
 
 /* The following functions are local */
 
-static struct image *find_glyphs(struct image *img)
+static void find_glyphs(struct image *img)
 {
     char all[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-    struct image *dst, *font;
+    struct image *tmp, *font;
     int x, y, i = 0;
     int r, g, b;
-    int xmin, xmax, ymin, ymax, incell = 0, count = 0, cur = 0, offset = -1;
+    int xmin, xmax, ymin, ymax, cur = 0, offset = -1;
     int distmin, distx, disty, distch;
 
     if(!font)
@@ -79,13 +76,13 @@ static struct image *find_glyphs(struct image *img)
         }
     }
 
-    dst = image_new(img->width, img->height);
+    tmp = image_new(img->width, img->height);
 
     for(x = 0; x < img->width; x++)
         for(y = 0; y < img->height; y++)
         {
             getpixel(img, x, y, &r, &g, &b);
-            setpixel(dst, x, y, 255, g, 255);
+            setpixel(tmp, x, y, 255, g, 255);
             if(r == 0 && offset == -1)
                 offset = x;
         }
@@ -149,13 +146,14 @@ static struct image *find_glyphs(struct image *img)
             {
                 getpixel(font, xmin + x, ymin + y, &r, &g, &b);
                 if(r > 128) continue;
-                setpixel(dst, distx + x, disty + y, r, g, b);
+                setpixel(tmp, distx + x, disty + y, r, g, b);
             }
 
         offset = distx + xmax - xmin;
         result[cur++] = all[distch];
     }
 
-    return dst;
+    image_swap(img, tmp);
+    image_free(tmp);
 }
 

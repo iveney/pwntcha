@@ -30,7 +30,7 @@ char *decode_scode(struct image *img)
     /* allocate enough place */
     result = malloc(1024 * sizeof(char));
 
-    tmp1 = filter_dup(img);
+    tmp1 = image_dup(img);
 
     /* Remove border */
     getpixel(img, 1, 1, &r, &g, &b);

@@ -17,7 +17,7 @@
 #include "config.h"
 #include "common.h"
 
-static struct image *find_glyphs(struct image *img);
+static void find_glyphs(struct image *img);
 
 /* Our macros */
 #define FONTNAME "font_clubic.png"
@@ -27,7 +27,7 @@ char *result;
 /* Main function */
 char *decode_clubic(struct image *img)
 {
-    struct image *tmp1, *tmp2;
+    struct image *tmp;
 
     if(!font)
     {
@@ -45,16 +45,16 @@ char *decode_clubic(struct image *img)
     result = malloc(7 * sizeof(char));
     strcpy(result, "      ");
 
-    tmp1 = filter_equalize(img, 200);
-    tmp2 = find_glyphs(tmp1);
+    tmp = image_dup(img);
+    filter_equalize(tmp, 200);
+    find_glyphs(tmp);
 
-    image_free(tmp1);
-    image_free(tmp2);
+    image_free(tmp);
 
     return result;
 }
 
-static struct image *find_glyphs(struct image *img)
+static void find_glyphs(struct image *img)
 {
     char all[] = "0123456789";
     struct
@@ -63,19 +63,19 @@ static struct image *find_glyphs(struct image *img)
         int count;
     }
     glyphs[10];
-    struct image *dst;
+    struct image *tmp;
     int x, y, i = 0;
     int r, g, b;
     int xmin, xmax, ymin, ymax, incell = 0, count = 0, startx = 0, cur = 0;
     int distmin, distx, disty, distch;
 
-    dst = image_new(img->width, img->height);
+    tmp = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
         {
             getpixel(img, x, y, &r, &g, &b);
-            setpixel(dst, x, y, 255, g, 255);
+            setpixel(tmp, x, y, 255, g, 255);
         }
 
     for(x = 0; x < font->width; x++)
@@ -168,13 +168,13 @@ static struct image *find_glyphs(struct image *img)
             {
                 getpixel(font, xmin + x, ymin + y, &r, &g, &b);
                 if(r > 128) continue;
-                setpixel(dst, distx + x, disty + y, r, g, b);
+                setpixel(tmp, distx + x, disty + y, r, g, b);
             }
 
         startx = distx + xmax - xmin;
         result[cur++] = all[distch];
     }
 
-    return dst;
+    image_free(tmp);
 }
 

@@ -18,10 +18,10 @@
 #include "config.h"
 #include "common.h"
 
-static struct image *count_objects(struct image *img);
-static struct image *rotate(struct image *img);
-static struct image *cut_cells(struct image *img);
-static struct image *find_glyphs(struct image *img);
+static void count_objects(struct image *img);
+static void rotate(struct image *img);
+static void cut_cells(struct image *img);
+static void find_glyphs(struct image *img);
 
 /* Our macros */
 #define FACTOR 1
@@ -38,7 +38,7 @@ char *result;
 /* Main function */
 char *decode_slashdot(struct image *img)
 {
-    struct image *tmp1, *tmp2, *tmp3, *tmp4, *tmp5, *tmp6, *tmp7;
+    struct image *tmp1, *tmp2;
 
     /* Initialise local data */
     objects = 0;
@@ -50,27 +50,24 @@ char *decode_slashdot(struct image *img)
     strcpy(result, "       ");
 
     /* Clean image a bit */
-    tmp1 = filter_detect_lines(img);
-    tmp2 = filter_fill_holes(tmp1);
+    tmp1 = image_dup(img);
+    filter_detect_lines(tmp1);
+    filter_fill_holes(tmp1);
 
     /* Detect small objects to guess image orientation */
-    tmp3 = filter_median(tmp2);
-    tmp4 = filter_equalize(tmp3, 200);
-    count_objects(tmp4);
+    tmp2 = image_dup(tmp1);
+    filter_median(tmp2);
+    filter_equalize(tmp2, 200);
+    count_objects(tmp2);
 
     /* Invert rotation and find glyphs */
-    tmp5 = rotate(tmp2);
-    tmp6 = filter_median(tmp5);
-    tmp7 = find_glyphs(tmp6);
+    rotate(tmp1);
+    filter_median(tmp1);
+    find_glyphs(tmp1);
 
     /* Clean up our mess */
     image_free(tmp1);
     image_free(tmp2);
-    image_free(tmp3);
-    image_free(tmp4);
-    image_free(tmp5);
-    image_free(tmp6);
-    image_free(tmp7);
 
     /* aaaaaaa means decoding failed */
     if(!strcmp(result, "aaaaaaa"))
@@ -81,33 +78,33 @@ char *decode_slashdot(struct image *img)
 
 /* The following functions are local */
 
-static struct image *count_objects(struct image *img)
+static void count_objects(struct image *img)
 {
-    struct image *dst;
+    struct image *tmp;
     int gotblack = 1;
     int x, y, i;
     int r, g, b;
 
-    dst = image_new(img->width, img->height);
+    tmp = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
         {
             getpixel(img, x, y, &r, &g, &b);
-            setpixel(dst, x, y, r, g, b);
+            setpixel(tmp, x, y, r, g, b);
         }
 
     while(gotblack)
     {
         gotblack = 0;
-        for(y = 0; y < dst->height; y++)
-            for(x = 0; x < dst->width; x++)
+        for(y = 0; y < tmp->height; y++)
+            for(x = 0; x < tmp->width; x++)
             {
-                getpixel(dst, x, y, &r, &g, &b);
+                getpixel(tmp, x, y, &r, &g, &b);
                 if(r == 0 && g == 0 && b == 0)
                 {
                     gotblack = 1;
-                    filter_flood_fill(dst, x, y, 254 - objects, 0, 0);
+                    filter_flood_fill(tmp, x, y, 254 - objects, 0, 0);
                     objects++;
                 }
             }
@@ -117,13 +114,13 @@ static struct image *count_objects(struct image *img)
 
     for(i = 0; i < objects; i++)
     {
-        objlist[i].ymin = dst->height;
+        objlist[i].ymin = tmp->height;
         objlist[i].ymax = 0;
 
-        for(y = 0; y < dst->height; y++)
-            for(x = 0; x < dst->width; x++)
+        for(y = 0; y < tmp->height; y++)
+            for(x = 0; x < tmp->width; x++)
             {
-                getpixel(dst, x, y, &r, &g, &b);
+                getpixel(tmp, x, y, &r, &g, &b);
                 if(r == 255 - i && g == 0 && b == 0)
                 {
                     if(y < objlist[i].ymin) { objlist[i].ymin = y; objlist[i].xmin = x; }
@@ -136,7 +133,7 @@ static struct image *count_objects(struct image *img)
             if(first == -1)
                 first = i;
             last = i;
-            filter_flood_fill(dst, objlist[i].xmin, objlist[i].ymin, 0, 0, 255);
+            filter_flood_fill(tmp, objlist[i].xmin, objlist[i].ymin, 0, 0, 255);
         }
     }
 
@@ -146,16 +143,17 @@ static struct image *count_objects(struct image *img)
       A.y = (objlist[first].ymin + objlist[first].ymax) / 2;
       B.x = (objlist[last].xmin + objlist[last].xmax) / 2;
       B.y = (objlist[last].ymin + objlist[last].ymax) / 2;
-      cvLine(dst, A, B, 0, 2.0, 0);
+      cvLine(tmp, A, B, 0, 2.0, 0);
     }
 #endif
 
-    return dst;
+    image_swap(img, tmp);
+    image_free(tmp);
 }
 
-static struct image *rotate(struct image *img)
+static void rotate(struct image *img)
 {
-    struct image *dst;
+    struct image *tmp;
     int x, y, xdest, ydest;
     int r, g, b;
     //int R, G, B;
@@ -170,7 +168,7 @@ static struct image *rotate(struct image *img)
         cosa = -cosa;
     }
 
-    dst = image_new(img->width * FACTOR, img->height * FACTOR);
+    tmp = image_new(img->width * FACTOR, img->height * FACTOR);
 
     for(y = 0; y < img->height * FACTOR; y++)
         for(x = 0; x < img->width * FACTOR; x++)
@@ -191,44 +189,46 @@ static struct image *rotate(struct image *img)
             //r = R / 4; g = G / 4; b = B / 4;
             if(r == 255 && g == 0 && b == 255)
                 g = 255;
-            setpixel(dst, x, y, r, g, b);
+            setpixel(tmp, x, y, r, g, b);
         }
 
-    return dst;
+    image_swap(img, tmp);
+    image_free(tmp);
 }
 
-static struct image *cut_cells(struct image *img)
+static void cut_cells(struct image *img)
 {
-    struct image *dst;
+    struct image *tmp;
     int x, y;
     int r, g, b;
 
-    dst = image_new(img->width, img->height);
+    tmp = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
         {
             getpixel(img, x, y, &r, &g, &b);
-            setpixel(dst, x, y, r, g, b);
+            setpixel(tmp, x, y, r, g, b);
         }
 
     for(x = 0; x < img->width; x++)
     {
-        setpixel(dst, x, 0, 255, 255, 255);
-        setpixel(dst, x, img->height - 1, 255, 255, 255);
+        setpixel(tmp, x, 0, 255, 255, 255);
+        setpixel(tmp, x, img->height - 1, 255, 255, 255);
     }
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < 7; x++)
         {
-            setpixel(dst, x * img->width / 7, y, 255, 255, 255);
-            setpixel(dst, (x + 1) * img->width / 7 - 1, y, 255, 255, 255);
+            setpixel(tmp, x * img->width / 7, y, 255, 255, 255);
+            setpixel(tmp, (x + 1) * img->width / 7 - 1, y, 255, 255, 255);
         }
 
-    return dst;
+    image_swap(img, tmp);
+    image_free(tmp);
 }
 
-static struct image *find_glyphs(struct image *img)
+static void find_glyphs(struct image *img)
 {
     char all[] = "abcdefgijkmnpqrstvwxyz";
     struct
@@ -237,7 +237,7 @@ static struct image *find_glyphs(struct image *img)
         int count;
     }
     glyphs[22];
-    struct image *dst;
+    struct image *tmp;
     int x, y, i = 0;
     int r, g, b;
     int xmin, xmax, ymin, ymax, incell = 0, count = 0, startx = 0, cur = 0;
@@ -255,13 +255,13 @@ static struct image *find_glyphs(struct image *img)
         }
     }
 
-    dst = image_new(img->width, img->height);
+    tmp = image_new(img->width, img->height);
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
         {
             getpixel(img, x, y, &r, &g, &b);
-            setpixel(dst, x, y, 255, g, 255);
+            setpixel(tmp, x, y, 255, g, 255);
         }
 
     for(x = 0; x < font->width; x++)
@@ -386,13 +386,14 @@ static struct image *find_glyphs(struct image *img)
             {
                 getpixel(font, xmin + x, ymin + y, &r, &g, &b);
                 if(r > 128) continue;
-                setpixel(dst, distx + x, disty + y, r, g, b);
+                setpixel(tmp, distx + x, disty + y, r, g, b);
             }
 
         startx = distx + xmax - xmin;
         result[cur++] = all[distch];
     }
 
-    return dst;
+    image_swap(img, tmp);
+    image_free(tmp);
 }
 

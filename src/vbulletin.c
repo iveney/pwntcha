@@ -25,7 +25,7 @@ char *decode_vbulletin(struct image *img)
 {
     char all[] = "2346789ABCDEFGHJKLMNPRTWXYZ";
     char *result;
-    struct image *tmp1, *tmp2, *tmp3;
+    struct image *tmp;
     int limits[6] = { 26, 53, 80, 107, 134, 160 };
     int x, y, r, g, b, i, j;
 
@@ -46,76 +46,77 @@ char *decode_vbulletin(struct image *img)
     strcpy(result, "      ");
 
     /* half the captchas are inverse video; we set them back to normal */
-    getpixel(img, 0, 0, &r, &g, &b);
+    tmp = image_dup(img);
+    getpixel(tmp, 0, 0, &r, &g, &b);
     if(r < 50)
-        tmp1 = filter_equalize(img, 128);
+        filter_equalize(tmp, 128);
     else
-        tmp1 = filter_equalize(img, -128);
+        filter_equalize(tmp, -128);
 
     /* Remove garbage around the cells */
-    for(x = 0; x < img->width; x++)
+    for(x = 0; x < tmp->width; x++)
     {
         for(y = 0; y < 15; y++)
-            setpixel(tmp1, x, y, 255, 255, 255);
-        for(y = 45; y < img->height; y++)
-            setpixel(tmp1, x, y, 255, 255, 255);
+            setpixel(tmp, x, y, 255, 255, 255);
+        for(y = 45; y < tmp->height; y++)
+            setpixel(tmp, x, y, 255, 255, 255);
     }
 
-    for(x = 0; x < img->width; x++)
+    for(x = 0; x < tmp->width; x++)
     {
         for(i = 0; i < 6; i++)
             if(x == limits[i])
                 break;
         if(i == 6)
             for(y = 15; y < 45; y++)
-                setpixel(tmp1, x, y, 255, 255, 255);
+                setpixel(tmp, x, y, 255, 255, 255);
         else
             x += 11;
     }
 
-    tmp2 = filter_black_stuff(tmp1);
-    tmp3 = filter_black_stuff(tmp2);
+    filter_black_stuff(tmp);
+    filter_black_stuff(tmp);
 
     /* Fill letters in gray */
     for(x = 26; x < 172; x++)
     {
-        getpixel(tmp3, x, 15, &r, &g, &b);
+        getpixel(tmp, x, 15, &r, &g, &b);
         if(r == 0)
-            filter_flood_fill(tmp3, x, 15, 127, 0, 255);
+            filter_flood_fill(tmp, x, 15, 127, 0, 255);
     }
 
     /* Find remaining black parts and remove them */
     for(x = 26; x < 172; x++)
         for(y = 15; y < 45; y++)
         {
-            getpixel(tmp3, x, y, &r, &g, &b);
+            getpixel(tmp, x, y, &r, &g, &b);
             if(r == 0)
-                filter_flood_fill(tmp3, x, y, 255, 255, 255);
+                filter_flood_fill(tmp, x, y, 255, 255, 255);
         }
 
     /* Fill letters in black */
     for(x = 26; x < 172; x++)
     {
-        getpixel(tmp3, x, 44, &r, &g, &b);
+        getpixel(tmp, x, 44, &r, &g, &b);
         if(r == 127)
-            filter_flood_fill(tmp3, x, 44, 0, 0, 0);
+            filter_flood_fill(tmp, x, 44, 0, 0, 0);
     }
 
     /* Find remaining gray parts and remove them */
     for(x = 26; x < 172; x++)
         for(y = 15; y < 45; y++)
         {
-            getpixel(tmp3, x, y, &r, &g, &b);
+            getpixel(tmp, x, y, &r, &g, &b);
             if(r == 127)
-                filter_flood_fill(tmp3, x, y, 255, 255, 255);
+                filter_flood_fill(tmp, x, y, 255, 255, 255);
         }
 
     /* Guess all glyphs */
     for(i = 0; i < 6; i++)
     {
-        struct image *new;
+        struct image *new = image_dup(tmp);
         int mindist = INT_MAX, min = -1;
-        new = filter_crop(tmp3, limits[i], 15, limits[i] + 11, 45);
+        filter_crop(new, limits[i], 15, limits[i] + 11, 45);
         for(j = 0; j < 27; j++)
         {
             int dist = 0;
@@ -137,9 +138,7 @@ char *decode_vbulletin(struct image *img)
         result[i] = all[min];
     }
 
-    image_free(tmp1);
-    image_free(tmp2);
-    image_free(tmp3);
+    image_free(tmp);
 
     return result;
 }

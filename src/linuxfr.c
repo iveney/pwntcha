@@ -47,12 +47,13 @@ char *decode_linuxfr(struct image *img)
     result = malloc(8 * sizeof(char));
     memset(result, '\0', 8);
 
-    tmp = filter_equalize(img, 150);
+    tmp = image_dup(img);
+    filter_equalize(tmp, 150);
 
-    for(y = 0; y < img->height; y++)
+    for(y = 0; y < tmp->height; y++)
     {
         int count = 0;
-        for(x = 0; x < img->width; x++)
+        for(x = 0; x < tmp->width; x++)
         {
             getpixel(tmp, x, y, &r, &g, &b);
             if(r == 0)
@@ -63,7 +64,7 @@ char *decode_linuxfr(struct image *img)
 
     /* Find 7 consecutive lines that have at least 14 pixels; they're
      * baseline candidates */
-    for(y = 0; y < img->height - 11; y++)
+    for(y = 0; y < tmp->height - 11; y++)
     {
         int ycan = 1;
         for(j = 3; j < 10; j++)
@@ -80,7 +81,7 @@ char *decode_linuxfr(struct image *img)
 
         /* Find 7 consecutive cells that have at least 2 pixels on
          * each line; they're base column candidates */
-        for(x = 0; x < img->width - 9 * 7 + 1; x++)
+        for(x = 0; x < tmp->width - 9 * 7 + 1; x++)
         {
             int goodx = 1;
             for(c = 0; c < 7 && goodx; c++)

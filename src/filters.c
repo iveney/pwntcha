@@ -46,25 +46,7 @@ void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b)
         filter_flood_fill(img, x, y - 1, r, g, b);
 }
 
-struct image *filter_dup(struct image *img)
-{
-    struct image *dst;
-    int x, y;
-    int r, g, b;
-
-    dst = image_new(img->width, img->height);
-
-    for(y = 0; y < img->height; y++)
-        for(x = 0; x < img->width; x++)
-        {
-            getpixel(img, x, y, &r, &g, &b);
-            setpixel(dst, x, y, r, g, b);
-        }
-
-    return dst;
-}
-
-struct image *filter_scale(struct image *img, float ratio)
+void filter_scale(struct image *img, float ratio)
 {
     struct image *dst;
     int w, h, x, y;
@@ -82,10 +64,11 @@ struct image *filter_scale(struct image *img, float ratio)
             setpixel(dst, x, y, r, g, b);
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
-struct image *filter_fill_holes(struct image *img)
+void filter_fill_holes(struct image *img)
 {
     struct image *dst;
     int x, y;
@@ -132,10 +115,11 @@ struct image *filter_fill_holes(struct image *img)
             setpixel(dst, x, y, c3, c3, c3);
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
-struct image *filter_black_stuff(struct image *img)
+void filter_black_stuff(struct image *img)
 {
     struct image *dst;
     int x, y;
@@ -172,10 +156,11 @@ struct image *filter_black_stuff(struct image *img)
             }
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
-struct image *filter_detect_lines(struct image *img)
+void filter_detect_lines(struct image *img)
 {
     struct image *dst;
     int x, y;
@@ -212,10 +197,11 @@ struct image *filter_detect_lines(struct image *img)
             }
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
-struct image *filter_equalize(struct image *img, int threshold)
+void filter_equalize(struct image *img, int threshold)
 {
     struct image *dst;
     int x, y;
@@ -243,10 +229,11 @@ struct image *filter_equalize(struct image *img, int threshold)
                 setpixel(dst, x, y, max, max, max);
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
-struct image *filter_trick(struct image *img)
+void filter_trick(struct image *img)
 {
 #define TSIZE 3
     struct image *dst;
@@ -289,10 +276,11 @@ struct image *filter_trick(struct image *img)
             setpixel(dst, x, y, i, i, i);
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
-struct image *filter_smooth(struct image *img)
+void filter_smooth(struct image *img)
 {
 #define SSIZE 3
     struct image *dst;
@@ -320,10 +308,11 @@ struct image *filter_smooth(struct image *img)
             setpixel(dst, x, y, i, i, i);
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
-struct image *filter_median(struct image *img)
+void filter_median(struct image *img)
 {
 #define MSIZE 3
     struct image *dst;
@@ -360,10 +349,11 @@ struct image *filter_median(struct image *img)
             setpixel(dst, x, y, i, i, i);
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
-struct image *filter_contrast(struct image *img)
+void filter_contrast(struct image *img)
 {
     struct image *dst;
     int histo[256];
@@ -393,11 +383,11 @@ struct image *filter_contrast(struct image *img)
             setpixel(dst, x, y, histo[r], histo[r], histo[r]);
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
-struct image *filter_crop(struct image *img,
-                          int xmin, int ymin, int xmax, int ymax)
+void filter_crop(struct image *img, int xmin, int ymin, int xmax, int ymax)
 {
     struct image *dst;
     int x, y;
@@ -413,7 +403,7 @@ struct image *filter_crop(struct image *img,
         ymax = img->height - 1;
 
     if(xmin >= xmax || ymin >= ymax)
-        return NULL;
+        return;
 
     dst = image_new(xmax - xmin, ymax - ymin);
 
@@ -424,7 +414,8 @@ struct image *filter_crop(struct image *img,
             setpixel(dst, x, y, r, g, b);
         }
 
-    return dst;
+    image_swap(img, dst);
+    image_free(dst);
 }
 
 int filter_count(struct image *img)
