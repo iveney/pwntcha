@@ -88,7 +88,10 @@ char *decode_phpbb(struct image *img)
                             int r2;
                             getgray(font, xmin + z, ymin + t, &r);
                             getgray(tmp2, x + z, y + t, &r2);
-                            dist += (r - r2) * (r - r2);
+                            if(r > r2)
+                                dist += r - r2;
+                            else
+                                dist += (r2 - r) * 3 / 4;
                         }
                     if(dist < localmin)
                     {
