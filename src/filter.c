@@ -291,7 +291,10 @@ void filter_smooth(struct image *img)
 
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
-            setpixel(dst, x, y, 255, 255, 255);
+        {
+            getpixel(img, x, y, &r, &g, &b);
+            setpixel(dst, x, y, r, g, b);
+        }
 
     for(y = SSIZE/2; y < img->height - SSIZE/2; y++)
         for(x = SSIZE/2; x < img->width - SSIZE/2; x++)
@@ -307,6 +310,23 @@ void filter_smooth(struct image *img)
             i = val / (SSIZE * SSIZE);
             setpixel(dst, x, y, i, i, i);
         }
+
+    /* Remove border */
+    for(y = 0; y < dst->height; y++)
+    {
+        getpixel(dst, 1, y, &r, &g, &b);
+        setpixel(dst, 0, y, r, g, b);
+        getpixel(dst, dst->width - 2, y, &r, &g, &b);
+        setpixel(dst, dst->width - 1, y, r, g, b);
+    }
+
+    for(x = 0; x < dst->width; x++)
+    {
+        getpixel(dst, x, 1, &r, &g, &b);
+        setpixel(dst, x, 0, r, g, b);
+        getpixel(dst, x, dst->height - 2, &r, &g, &b);
+        setpixel(dst, x, dst->height - 1, r, g, b);
+    }
 
     image_swap(img, dst);
     image_free(dst);
