@@ -34,6 +34,8 @@ char *decode_lmt(struct image *img)
     tmp = image_dup(img);
     filter_contrast(tmp);
     filter_black_stuff(tmp);
+    filter_smooth(tmp);
+    filter_median(tmp);
     find_glyphs(tmp);
 
     image_free(tmp);
@@ -54,6 +56,7 @@ static void find_glyphs(struct image *img)
     {
         font = font_load_variable("font_freesans_24_09AZ.bmp",
                                   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        filter_smooth(font->img);
         if(!font)
             exit(1);
     }
