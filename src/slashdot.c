@@ -19,7 +19,7 @@
 
 /* Our macros */
 #define FACTOR 1
-#define FONTNAME "share/font_dilated_half.png" // use with FACTOR = 1
+#define FONTNAME "share/font_slashdot.png" // use with FACTOR = 1
 //#define FONTNAME "share/font.png" // use with FACTOR = 2
 //#define FONTNAME "share/font_dilated.png" // use with FACTOR = 2
 

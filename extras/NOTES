@@ -1,0 +1,13 @@
+$Id$
+
+   The extras/ directory contains extra files that were used to generate
+static files such as fonts.
+
+usercp_confirm.php
+------------------
+   This file is includes/usercp_confirm.php, extracted from phpBB's captcha
+generator. It was used to generate the font_phpbb.png font file. This file
+is NOT under the WTFPL, it is GPL.
+
+  Usage: php4 usercp_confirm.php > font_phpbb.png
+
