@@ -20,15 +20,11 @@
 /* Our macros */
 #define FONTNAME "share/font_phpbb.png"
 
-static struct image *find_glyphs(struct image *img);
-
-/* Global stuff */
-char *result;
-
 /* Main function */
 char *decode_phpbb(struct image *img)
 {
     char all[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+    char *result;
     struct image *tmp1, *tmp2, *tmp3;
     struct image *font = image_load(FONTNAME);
     int x, y, i = 0;
@@ -36,15 +32,15 @@ char *decode_phpbb(struct image *img)
     int xmin, xmax, ymin, ymax, cur, offset = -1;
     int distmin, distx, disty, distch;
 
-    /* phpBB captchas have 6 characters */
-    result = malloc(7 * sizeof(char));
-    strcpy(result, "      ");
-
     if(!font)
     {
         fprintf(stderr, "cannot load font %s\n", FONTNAME);
         exit(-1);
     }
+
+    /* phpBB captchas have 6 characters */
+    result = malloc(7 * sizeof(char));
+    strcpy(result, "      ");
 
     tmp1 = filter_smooth(img);
     tmp2 = filter_equalize(tmp1, 128);
