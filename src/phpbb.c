@@ -17,14 +17,10 @@
 #include "config.h"
 #include "common.h"
 
-/* Our macros */
-#define FONTNAME "font_phpbb.png"
-static struct image *font = NULL;
-
 /* Main function */
 char *decode_phpbb(struct image *img)
 {
-    char all[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+    static struct font *font = NULL;
     char *result;
     struct image *tmp1, *tmp2;
     int x, y, i = 0;
@@ -34,14 +30,10 @@ char *decode_phpbb(struct image *img)
 
     if(!font)
     {
-        char fontname[BUFSIZ];
-        sprintf(fontname, "%s/%s", share, FONTNAME);
-        font = image_load(fontname);
+        font = font_load_fixed("font_phpbb.png",
+                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789");
         if(!font)
-        {
-            fprintf(stderr, "cannot load font %s\n", fontname);
             exit(-1);
-        }
     }
 
     /* phpBB captchas have 6 characters */
@@ -68,14 +60,14 @@ char *decode_phpbb(struct image *img)
     {
         /* Try to find 1st letter */
         distmin = INT_MAX;
-        for(i = 0; i < 35; i++)
+        for(i = 0; i < font->size; i++)
         {
             int localmin = INT_MAX, localx, localy;
-            xmin = i * 40;
-            ymin = 0;
-            xmax = i * 40 + 40;
-            ymax = 40;
-            for(y = 0; y < img->height - 40; y++)
+            xmin = font->glyphs[i].xmin;
+            ymin = font->glyphs[i].ymin;
+            xmax = font->glyphs[i].xmax;
+            ymax = font->glyphs[i].ymax;
+            for(y = 0; y < img->height - (ymax - ymin); y++)
             {
                 x = offset - 3;
                 if(cur == 0)
@@ -90,7 +82,7 @@ char *decode_phpbb(struct image *img)
                         for(z = 0; z < xmax - xmin; z++)
                         {
                             int r2;
-                            getgray(font, xmin + z, ymin + t, &r);
+                            getgray(font->img, xmin + z, ymin + t, &r);
                             getgray(tmp1, x + z, y + t, &r2);
                             if(r > r2)
                                 dist += r - r2;
@@ -115,22 +107,23 @@ char *decode_phpbb(struct image *img)
         }
 
         /* Print min glyph (debug) */
-        xmin = distch * 40;
-        ymin = 0;
-        xmax = distch * 40 + 40;
-        ymax = 40;
+        xmin = font->glyphs[distch].xmin;
+        ymin = font->glyphs[distch].ymin;
+        xmax = font->glyphs[distch].xmax;
+        ymax = font->glyphs[distch].ymax;
         for(y = 0; y < ymax - ymin; y++)
             for(x = 0; x < xmax - xmin; x++)
             {
                 int r2;
-                getpixel(font, xmin + x, ymin + y, &r2, &g, &b);
-                if(r2 > 128) continue;
+                getpixel(font->img, xmin + x, ymin + y, &r2, &g, &b);
+                if(r2 > 128)
+                    continue;
                 getpixel(tmp2, distx + x, disty + y, &r, &g, &b);
                 setpixel(tmp2, distx + x, disty + y, r2, g, b);
             }
 
         offset = distx + xmax - xmin;
-        result[cur] = all[distch];
+        result[cur] = font->glyphs[distch].c;
     }
 
     image_free(tmp1);

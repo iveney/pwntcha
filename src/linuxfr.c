@@ -17,35 +17,30 @@
 #include "config.h"
 #include "common.h"
 
-#define FONTNAME "font_linuxfr.png"
-static struct image *font = NULL;
-
 /* Main function */
 char *decode_linuxfr(struct image *img)
 {
-    char all[] = "abcdefghijklmnopqrstuvwxyz"
-                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                 "0123456789";
+    static struct font *font = NULL;
     char *result;
     struct image *tmp;
     int x, y, r, g, b, i, j, c;
-    int *stats = malloc(img->height * sizeof(int));
+    int *stats;
 
     if(!font)
     {
-        char fontname[BUFSIZ];
-        sprintf(fontname, "%s/%s", share, FONTNAME);
-        font = image_load(fontname);
+        font = font_load_fixed("font_linuxfr.png",
+                               "abcdefghijklmnopqrstuvwxyz"
+                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                               "0123456789");
         if(!font)
-        {
-            fprintf(stderr, "cannot load font %s\n", fontname);
             exit(-1);
-        }
     }
 
     /* linuxfr captchas have 7 characters */
     result = malloc(8 * sizeof(char));
     memset(result, '\0', 8);
+
+    stats = malloc(img->height * sizeof(int));
 
     tmp = image_dup(img);
     filter_equalize(tmp, 150);
@@ -114,14 +109,14 @@ char *decode_linuxfr(struct image *img)
             {
                 int r2, g2, b2, ch;
                 int minerror = INT_MAX;
-                for(ch = 0; ch < 62; ch++)
+                for(ch = 0; ch < font->size; ch++)
                 {
                     int error = 0, goodch = 1;
                     for(j = 0; j < 12 && goodch; j++)
                         for(i = 0; i < 8; i++)
                         {
                             getpixel(tmp, x + c * 9 + i, y + j, &r, &g, &b);
-                            getpixel(font, ch * 9 + i, j, &r2, &g2, &b2);
+                            getpixel(font->img, ch * 9 + i, j, &r2, &g2, &b2);
                             /* Only die if font is black and image is white */
                             if(r > r2)
                             {
@@ -134,7 +129,7 @@ char *decode_linuxfr(struct image *img)
                     if(goodch && error < minerror)
                     {
                         minerror = error;
-                        result[c] = all[ch];
+                        result[c] = font->glyphs[ch].c;
                         result[c+1] = '\0';
                     }
                 }

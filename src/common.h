@@ -25,7 +25,9 @@ struct font
     {
         int xmin, xmax, ymin, ymax;
         int count; /* Black pixel count */
+        char c;
     } *glyphs;
+    int size;
 };
 
 /* global variables */
@@ -56,6 +58,11 @@ void image_swap(struct image *img1, struct image *img2);
 int getgray(struct image *img, int x, int y, int *g);
 int getpixel(struct image *img, int x, int y, int *r, int *g, int *b);
 int setpixel(struct image *img, int x, int y, int r, int g, int b);
+
+/* font operations */
+struct font *font_load_fixed(char *file, char *chars);
+struct font *font_load_variable(char *file, char *chars);
+void font_free(struct font *font);
 
 /* image filters */
 void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b);

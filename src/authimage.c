@@ -18,44 +18,38 @@
 #include "config.h"
 #include "common.h"
 
-#define FONTNAME "font_authimage.png"
-static struct image *font = NULL;
-
 /* Main function */
 char *decode_authimage(struct image *img)
 {
-    char *all = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static struct font *font = NULL;
     char *result;
     struct image *tmp;
     int x, y, r, g, b, i;
 
     if(!font)
     {
-        char fontname[BUFSIZ];
-        sprintf(fontname, "%s/%s", share, FONTNAME);
-        font = image_load(fontname);
+        font = font_load_fixed("font_authimage.png",
+                               "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         if(!font)
-        {
-            fprintf(stderr, "cannot load font %s\n", fontname);
             exit(-1);
-        }
     }
 
     /* authimage captchas have 6 characters */
     result = malloc(7 * sizeof(char));
     memset(result, '\0', 7);
 
-    /* half the captchas are inverse video; we set them back to normal */
+    /* double the captcha size for better accuracy in the rotation */
     tmp = image_dup(img);
     filter_scale(tmp, 2.0);
     getpixel(tmp, 0, 0, &r, &g, &b);
     filter_equalize(tmp, r * 3 / 4);
     filter_smooth(tmp);
+    filter_equalize(tmp, 220);
 
     for(i = 0; i < 6; i++)
     {
         int mindiff = INT_MAX, minch = -1, ch;
-        for(ch = 0; ch < 36; ch++)
+        for(ch = 0; ch < font->size; ch++)
         {
             int diff = 0;
             for(y = 0; y < 7; y++)
@@ -66,8 +60,7 @@ char *decode_authimage(struct image *img)
                     newx = 35.0 + (x + 6 * i) * 218.0 / 34.0 + y * 5.0 / 6.0 + 0.5;
                     newy = 33.0 - (x + 6 * i) * 18.0 / 34.0 + y * 42.0 / 6.0 + 0.5;
                     getpixel(tmp, newx, newy, &r, &g, &b);
-                    getpixel(font, x + 6 * ch, y, &r2, &g, &b);
-                    r = (r < 220) ? 0 : 255;
+                    getpixel(font->img, x + 6 * ch, y, &r2, &g, &b);
                     diff += (r - r2) * (r - r2);
                 }
             }
@@ -77,7 +70,7 @@ char *decode_authimage(struct image *img)
                 minch = ch;
             }
         }
-        result[i] = all[minch];
+        result[i] = font->glyphs[minch].c;
     }
 
     image_free(tmp);

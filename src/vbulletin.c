@@ -17,13 +17,10 @@
 #include "config.h"
 #include "common.h"
 
-#define FONTNAME "font_vbulletin.png"
-static struct image *font = NULL;
-
 /* Main function */
 char *decode_vbulletin(struct image *img)
 {
-    char all[] = "2346789ABCDEFGHJKLMNPRTWXYZ";
+    static struct font *font = NULL;
     char *result;
     struct image *tmp;
     int limits[6] = { 26, 53, 80, 107, 134, 160 };
@@ -31,14 +28,10 @@ char *decode_vbulletin(struct image *img)
 
     if(!font)
     {
-        char fontname[BUFSIZ];
-        sprintf(fontname, "%s/%s", share, FONTNAME);
-        font = image_load(fontname);
+        font = font_load_fixed("font_vbulletin.png",
+                               "2346789ABCDEFGHJKLMNPRTWXYZ");
         if(!font)
-        {
-            fprintf(stderr, "cannot load font %s\n", fontname);
             exit(-1);
-        }
     }
 
     /* vBulletin captchas have 6 characters */
@@ -114,18 +107,16 @@ char *decode_vbulletin(struct image *img)
     /* Guess all glyphs */
     for(i = 0; i < 6; i++)
     {
-        struct image *new = image_dup(tmp);
         int mindist = INT_MAX, min = -1;
-        filter_crop(new, limits[i], 15, limits[i] + 11, 45);
-        for(j = 0; j < 27; j++)
+        for(j = 0; j < font->size; j++)
         {
             int dist = 0;
-            for(y = 0; y < new->height; y++)
-                for(x = 0; x < new->width; x++)
+            for(y = 0; y < 11; y++)
+                for(x = 0; x < 30; x++)
                 {
                     int r2, g2, b2;
-                    getpixel(font, 12 * j + x, y, &r, &g, &b);
-                    getpixel(new, x, y, &r2, &g2, &b2);
+                    getpixel(font->img, 12 * j + x, y, &r, &g, &b);
+                    getpixel(tmp, limits[i] + x, 15 + y, &r2, &g2, &b2);
                     dist += (r - r2) * (r - r2);
                 }
             if(dist < mindist)
@@ -134,8 +125,7 @@ char *decode_vbulletin(struct image *img)
                 min = j;
             }
         }
-        image_free(new);
-        result[i] = all[min];
+        result[i] = font->glyphs[min].c;
     }
 
     image_free(tmp);

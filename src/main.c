@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
         switch(c)
         {
         case 'h': /* --help */
-            printf("Usage: %s [OPTION]... FILE...\n", argv[0]);
+            printf("Usage: %s [OPTION]... IMAGE...\n", argv[0]);
 #ifdef HAVE_GETOPT_LONG
             printf("  -m, --mode <mode>  force operating mode\n");
             printf("  -s, --share <dir>  specify shared dir\n");

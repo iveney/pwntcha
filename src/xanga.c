@@ -20,27 +20,36 @@
 
 static void fill_white_holes(struct image *img);
 
-/* Our macros */
-#define FACTOR 1
-#define FONTNAME "font_xanga.png" // use with FACTOR = 1
-//#define FONTNAME "font.png" // use with FACTOR = 2
-//#define FONTNAME "font_dilated.png" // use with FACTOR = 2
-static struct image *font = NULL;
-
-/* Global stuff */
-struct { int xmin, ymin, xmax, ymax; } objlist[100];
-int objects, first, last;
-char *result;
-
 /* Main function */
 char *decode_xanga(struct image *img)
 {
+    static struct font *font1 = NULL, *font2 = NULL, *font3 = NULL;
     struct image *tmp;
+    char *result;
 
-    /* Initialise local data */
-    objects = 0;
-    first = -1;
-    last = -1;
+    if(!font1)
+    {
+        font1 = font_load_variable("font_freemonobold_32_az.bmp",
+                                   "abcdefghijklmnopqrstuvwxyz");
+        if(!font1)
+            exit(1);
+    }
+
+    if(!font2)
+    {
+        font2 = font_load_variable("font_freemonobold_32_az.bmp",
+                                   "abcdefghijklmnopqrstuvwxyz");
+        if(!font2)
+            exit(1);
+    }
+
+    if(!font3)
+    {
+        font3 = font_load_variable("font_freemonobold_32_az.bmp",
+                                   "abcdefghijklmnopqrstuvwxyz");
+        if(!font3)
+            exit(1);
+    }
 
     /* Xanga captchas have 7 characters */
     result = malloc(8 * sizeof(char));
@@ -68,7 +77,6 @@ return NULL;
     filter_equalize(tmp, 200);
 
     /* Invert rotation and find glyphs */
-    rotate(tmp);
     filter_median(tmp);
 
     /* Clean up our mess */
@@ -86,7 +94,7 @@ return NULL;
 static void fill_white_holes(struct image *img)
 {
     struct image *tmp;
-    int x, y, i;
+    int x, y;
     int r, g, b;
 
     tmp = image_new(img->width, img->height);

@@ -3,8 +3,9 @@ NULL =
 bin_PROGRAMS = pwntcha
 pwntcha_SOURCES = \
     main.c \
+    filter.c \
+    font.c \
     image.c \
-    filters.c \
     common.h \
     authimage.c \
     clubic.c \
