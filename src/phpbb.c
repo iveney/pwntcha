@@ -58,7 +58,7 @@ char *decode_phpbb(struct image *img)
             setpixel(tmp3, x, y, 255, g, 255);
         }
 
-    strcpy(result, "       ");
+    strcpy(result, "      ");
 
     for(cur = 0; cur < 6; cur++)
     {
