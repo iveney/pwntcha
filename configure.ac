@@ -18,6 +18,8 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
+AC_CHECK_FUNCS(getopt_long)
+
 # Use OpenCV?
 ac_cv_my_have_opencv="no"
 save_CPPFLAGS="${CPPFLAGS}"

@@ -17,6 +17,12 @@
 #include "config.h"
 #include "common.h"
 
+#ifdef HAVE_GETOPT_LONG
+#   define MOREINFO "Try `%s --help' for more information.\n"
+#else
+#   define MOREINFO "Try `%s -h' for more information.\n"
+#endif
+
 int main(int argc, char *argv[])
 {
     char *mode = "auto";
@@ -27,6 +33,7 @@ int main(int argc, char *argv[])
     for(;;)
     {
         int this_option_optind = optind ? optind : 1;
+#ifdef HAVE_GETOPT_LONG
         int option_index = 0;
         static struct option long_options[] =
         {
@@ -37,6 +44,9 @@ int main(int argc, char *argv[])
         };
 
         c = getopt_long(argc, argv, "hm:v", long_options, &option_index);
+#else
+        c = getopt(argc, argv, "hm:v");
+#endif
         if(c == -1)
             break;
 
@@ -44,15 +54,21 @@ int main(int argc, char *argv[])
         {
         case 'h': /* --help */
             printf("Usage: %s [OPTION]... FILE...\n", argv[0]);
+#ifdef HAVE_GETOPT_LONG
             printf("  -m, --mode      force operating mode\n");
             printf("  -h, --help      display this help and exit\n");
             printf("  -v, --version   output version information and exit\n");
+#else
+            printf("  -m     force operating mode\n");
+            printf("  -h     display this help and exit\n");
+            printf("  -v     output version information and exit\n");
+#endif
             return 0;
         case 'm': /* --mode */
             mode = optarg;
             break;
         case 'v': /* --version */
-            printf("pwntcha (CAPTCHA decoder) %s\n", VERSION);
+            printf("pwntcha (captcha decoder) %s\n", VERSION);
             printf("Written by Sam Hocevar.\n");
             printf("\n");
             printf("Copyright (C) 2004-2005 Sam Hocevar <sam@zoy.org>\n");
@@ -60,10 +76,11 @@ int main(int argc, char *argv[])
             printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
             return 0;
         case '?':
-            break;
+            printf(MOREINFO, argv[0]);
+            return 1;
         default:
             printf("%s: invalid option -- %i\n", argv[0], c);
-            printf("Try `%s --help' for more information.\n", argv[0]);
+            printf(MOREINFO, argv[0]);
             return 1;
         }
     }
@@ -71,7 +88,7 @@ int main(int argc, char *argv[])
     if(optind >= argc)
     {
         printf("%s: too few arguments\n", argv[0]);
-        printf("Try `%s --help' for more information.\n", argv[0]);
+        printf(MOREINFO, argv[0]);
         return 1;
     }
 
@@ -102,7 +119,7 @@ int main(int argc, char *argv[])
                 result = decode_slashdot(img);
             else
             {
-                fprintf(stderr, "%s: could not guess CAPTCHA type\n", argv[0]);
+                fprintf(stderr, "%s: could not guess captcha type\n", argv[0]);
                 printf("\n");
                 image_free(img);
                 continue;
