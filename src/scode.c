@@ -47,7 +47,7 @@ char *decode_scode(struct image *img)
     }
 
     /* Detect background: first and last 3 lines */
-    for(i = 0; i < 256; i++)
+    for(i = 0; i < 3 * 256; i++)
         stats[i] = 0;
 
     for(y = 0; y < 3; y++)
