@@ -19,23 +19,52 @@
 
 /* Our macros */
 #define FACTOR 1
+#define FONTNAME "share/font_dilated_half.png" // use with FACTOR = 1
 //#define FONTNAME "share/font.png" // use with FACTOR = 2
 //#define FONTNAME "share/font_dilated.png" // use with FACTOR = 2
-#define FONTNAME "share/font_dilated_half.png" // use with FACTOR = 1
+
+static struct image *count_objects(struct image *img);
+static struct image *rotate(struct image *img);
+static struct image *cut_cells(struct image *img);
+static struct image *find_glyphs(struct image *img);
 
 /* Global stuff */
+struct { int xmin, ymin, xmax, ymax; } objlist[100];
+int objects = 0, first = -1, last = -1;
 char *result;
 
-struct
+/* Main function */
+char * slashdot_decode(char *image)
 {
-    int xmin, ymin, xmax, ymax;
+    struct image *img, *tmp, *tmp2;
+
+    img = load_image(image);
+    if(img == NULL)
+        return NULL;
+
+    /* Slashdot captchas have 7 characters */
+    result = malloc(8 * sizeof(char));
+
+    /* Clean image a bit */
+    tmp = detect_lines(img);
+    tmp = fill_holes(tmp);
+
+    /* Detect small objects to guess image orientation */
+    tmp2 = median(tmp);
+    tmp2 = equalize(tmp2);
+    count_objects(tmp2);
+
+    /* Invert rotation and find glyphs */
+    tmp = rotate(tmp);
+    tmp = median(tmp);
+    tmp = find_glyphs(tmp);
+
+    return result;
 }
-objlist[100];
-int objects = 0, first = -1, last = -1;
 
-/* Functions */
+/* The following functions are local */
 
-struct image *count_objects(struct image *img)
+static struct image *count_objects(struct image *img)
 {
     struct image *dst;
     int gotblack = 1;
@@ -107,11 +136,12 @@ struct image *count_objects(struct image *img)
     return dst;
 }
 
-struct image *rotate(struct image *img)
+static struct image *rotate(struct image *img)
 {
     struct image *dst;
     int x, y, xdest, ydest;
-    int r, g, b, R, G, B;
+    int r, g, b;
+    //int R, G, B;
     int X = objlist[first].xmin - objlist[last].xmin;
     int Y = objlist[first].ymin - objlist[last].ymin;
     float xtmp, ytmp;
@@ -150,7 +180,7 @@ struct image *rotate(struct image *img)
     return dst;
 }
 
-struct image *cut_cells(struct image *img)
+static struct image *cut_cells(struct image *img)
 {
     struct image *dst;
     int x, y;
@@ -181,7 +211,7 @@ struct image *cut_cells(struct image *img)
     return dst;
 }
 
-struct image * find_glyphs(struct image *img)
+static struct image *find_glyphs(struct image *img)
 {
     char all[] = "abcdefgijkmnpqrstvwxyz";
     struct
@@ -193,7 +223,7 @@ struct image * find_glyphs(struct image *img)
     struct image *dst;
     struct image *font = load_image(FONTNAME);
     int x, y, i = 0;
-    int r, g, b, r2, g2, b2;
+    int r, g, b;
     int xmin, xmax, ymin, ymax, incell = 0, count = 0, startx = 0, cur = 0;
     int distmin, distx, disty, distch;
 
@@ -277,124 +307,72 @@ struct image * find_glyphs(struct image *img)
         exit(-1);
     }
 
-while(cur < 7)
-{
-    /* Try to find 1st letter */
-    distmin = 999999999;
-    for(i = 0; i < 22; i++)
+    while(cur < 7)
     {
-        int localmin = 99999999, localx, localy;
-//if(all[i] == 'i') continue;
-        xmin = glyphs[i].xmin;
-        ymin = glyphs[i].ymin;
-        xmax = glyphs[i].xmax;
-        ymax = glyphs[i].ymax;
-        //printf("trying to find %c (%i×%i) - ", all[i], xmax - xmin, ymax - ymin);
-        for(y = -5 * FACTOR; y < 5 * FACTOR; y++)
-            for(x = startx - 5 * FACTOR; x < startx + 5 * FACTOR; x++)
-            {
-                int z, t, dist;
-                dist = 0;
-                for(t = 0; t < ymax - ymin; t++)
-                    for(z = 0; z < xmax - xmin; z++)
-                    {
-                        getgray(font, xmin + z, ymin + t, &r);
-                        getgray(img, x + z, y + t, &r2);
-                        dist += abs(r - r2);
-                    }
-//                printf("%i %i -> %i\n", x, y, dist);
-                //dist /= sqrt(xmax - xmin);
-                dist = dist * 128 / glyphs[i].count;
-                if(dist < localmin)
-                {
-                    localmin = dist;
-                    localx = x;
-                    localy = y;
-                }
-            }
-        //fprintf(stderr, "%i (%i,%i)\n", localmin, localx - startx, localy);
-        if(localmin < distmin)
+        /* Try to find 1st letter */
+        distmin = 999999999;
+        for(i = 0; i < 22; i++)
         {
-            distmin = localmin;
-            distx = localx;
-            disty = localy;
-            distch = i;
+            int localmin = 99999999, localx, localy;
+//if(all[i] == 'i') continue;
+            xmin = glyphs[i].xmin;
+            ymin = glyphs[i].ymin;
+            xmax = glyphs[i].xmax;
+            ymax = glyphs[i].ymax;
+            //printf("trying to find %c (%i×%i) - ", all[i], xmax - xmin, ymax - ymin);
+            for(y = -5 * FACTOR; y < 5 * FACTOR; y++)
+                for(x = startx - 5 * FACTOR; x < startx + 5 * FACTOR; x++)
+                {
+                    int z, t, dist;
+                    dist = 0;
+                    for(t = 0; t < ymax - ymin; t++)
+                        for(z = 0; z < xmax - xmin; z++)
+                        {
+                            int r2;
+                            getgray(font, xmin + z, ymin + t, &r);
+                            getgray(img, x + z, y + t, &r2);
+                            dist += abs(r - r2);
+                        }
+    //                printf("%i %i -> %i\n", x, y, dist);
+                    //dist /= sqrt(xmax - xmin);
+                    dist = dist * 128 / glyphs[i].count;
+                    if(dist < localmin)
+                    {
+                        localmin = dist;
+                        localx = x;
+                        localy = y;
+                    }
+                }
+            //fprintf(stderr, "%i (%i,%i)\n", localmin, localx - startx, localy);
+            if(localmin < distmin)
+            {
+                distmin = localmin;
+                distx = localx;
+                disty = localy;
+                distch = i;
+            }
         }
+
+        //fprintf(stderr, "%i (%i,%i)\n", distmin, distx - startx, disty);
+        //printf("min diff: %c - %i (%i, %i)\n", all[distch], distmin, distx, disty);
+
+        /* Print min glyph */
+        xmin = glyphs[distch].xmin;
+        ymin = glyphs[distch].ymin;
+        xmax = glyphs[distch].xmax;
+        ymax = glyphs[distch].ymax;
+        for(y = 0; y < ymax - ymin; y++)
+            for(x = 0; x < xmax - xmin; x++)
+            {
+                getpixel(font, xmin + x, ymin + y, &r, &g, &b);
+                if(r > 128) continue;
+                setpixel(dst, distx + x, disty + y, r, g, b);
+            }
+
+        startx = distx + xmax - xmin;
+        result[cur++] = all[distch];
     }
 
-    //fprintf(stderr, "%i (%i,%i)\n", distmin, distx - startx, disty);
-    //printf("min diff: %c - %i (%i, %i)\n", all[distch], distmin, distx, disty);
-
-    /* Print min glyph */
-    xmin = glyphs[distch].xmin;
-    ymin = glyphs[distch].ymin;
-    xmax = glyphs[distch].xmax;
-    ymax = glyphs[distch].ymax;
-    for(y = 0; y < ymax - ymin; y++)
-        for(x = 0; x < xmax - xmin; x++)
-        {
-            getpixel(font, xmin + x, ymin + y, &r, &g, &b);
-            if(r > 128) continue;
-            setpixel(dst, distx + x, disty + y, r, g, b);
-        }
-
-    startx = distx + xmax - xmin;
-    result[cur++] = all[distch];
-}
-
     return dst;
-}
-
-char * slashdot_decode(char *image)
-{
-    struct image *img, *tmp, *tmp2;
-
-    img = load_image(image);
-    if(img == NULL)
-        return NULL;
-
-    result = malloc(8 * sizeof(char));
-//    display(img);
-
-//    tmp = equalize(img);
-//    display(tmp);
-//    tmp = fill_holes(tmp);
-//    display(tmp);
-
-//    dst = median(tmp);
-//tmp = smooth(img);
-tmp = fill_holes(img);
-tmp = median(tmp);
-//tmp = smooth(tmp);
-//display(tmp);
-//tmp = trick(tmp);
-//display(tmp);
-tmp = equalize(tmp);
-//display(tmp);
-
-tmp = detect_lines(img);
-tmp = fill_holes(tmp);
-//tmp = cut_cells(tmp);
-//display_image(tmp);
-
-tmp2 = median(tmp);
-tmp2 = equalize(tmp2);
-count_objects(tmp2);
-//display_image(tmp2);
-
-//tmp = median(tmp);
-tmp = rotate(tmp);
-tmp = median(tmp);
-//display_image(tmp);
-//tmp = equalize(tmp);
-//tmp = cut_cells(tmp);
-//        cvSaveImage(argv[2], tmp);
-
-tmp = find_glyphs(tmp);
-//display_image(tmp);
-
-//        cvSaveImage(argv[3], tmp);
-
-    return result;
 }
 
