@@ -383,7 +383,7 @@ struct image *filter_contrast(struct image *img)
     if(min == max)
         histo[min] = 127;
     else
-        for(i = min; i < max; i++)
+        for(i = min; i < max + 1; i++)
             histo[i] = (i - min) * 255 / (max - min);
 
     for(y = 0; y < img->height; y++)
