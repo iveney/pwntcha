@@ -18,6 +18,19 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
+# Use OpenCV?
+ac_cv_my_have_opencv="no"
+save_CPPFLAGS="${CPPFLAGS}"
+AC_PATH_PROG(OPENCV_CONFIG, opencv-config, no)
+if test "${OPENCV_CONFIG}" != "no"; then
+  CPPFLAGS="${CPPFLAGS} `opencv-config --cflags`"
+fi
+AC_CHECK_HEADERS(cv.h,
+ [ac_cv_my_have_opencv="yes"],
+ [ac_cv_my_have_opencv="no"])
+CPPFLAGS="${save_CPPFLAGS}"
+AM_CONDITIONAL(USE_OPENCV, test "${ac_cv_my_have_opencv}" = "yes")
+
 # Use Imlib2?
 ac_cv_my_have_imlib2="no"
 save_CPPFLAGS="${CPPFLAGS}"
@@ -30,19 +43,6 @@ AC_CHECK_HEADERS(Imlib2.h,
  [ac_cv_my_have_imlib2="no"])
 CPPFLAGS="${save_CPPFLAGS}"
 AM_CONDITIONAL(USE_IMLIB2, test "${ac_cv_my_have_imlib2}" = "yes")
-
-# Use Imlib2?
-ac_cv_my_have_opencv="no"
-save_CPPFLAGS="${CPPFLAGS}"
-AC_PATH_PROG(OPENCV_CONFIG, opencv-config, no)
-if test "${OPENCV_CONFIG}" != "no"; then
-  CPPFLAGS="${CPPFLAGS} `opencv-config --cflags`"
-fi
-AC_CHECK_HEADERS(cv.h,
- [ac_cv_my_have_opencv="yes"],
- [ac_cv_my_have_opencv="no"])
-CPPFLAGS="${save_CPPFLAGS}"
-AM_CONDITIONAL(USE_OPENCV, test "${ac_cv_my_have_opencv}" = "yes")
 
 if test "${ac_cv_my_have_imlib2}" = "no" -a "${ac_cv_my_have_opencv}" = "no"; then
   AC_MSG_ERROR([[cannot find Imlib2 or OpenCV, please install one of them]])

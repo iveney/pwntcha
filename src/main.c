@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <getopt.h>
 
 #include "config.h"
@@ -87,7 +88,29 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        result = decode_slashdot(img);
+        if(!strcmp(mode, "test"))
+            result = decode_test(img);
+        else if(!strcmp(mode, "phpbb"))
+            result = decode_phpbb(img);
+        else if(!strcmp(mode, "slashdot"))
+            result = decode_slashdot(img);
+        else
+        {
+            if(img->width == 320 && img->height == 50)
+                result = decode_phpbb(img);
+            else if(img->height == 69)
+                result = decode_slashdot(img);
+            else
+            {
+                fprintf(stderr, "%s: could not guess CAPTCHA type\n", argv[0]);
+                printf("\n");
+                image_free(img);
+                continue;
+            }
+        }
+
+        image_free(img);
+
         if(!result)
         {
             fprintf(stderr, "%s: sorry, decoding failed\n", argv[0]);

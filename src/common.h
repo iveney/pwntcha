@@ -18,11 +18,15 @@ struct image
 };
 
 /* available CAPTCHA decoders */
-char * decode_slashdot(struct image *img);
+char *decode_phpbb(struct image *img);
+char *decode_slashdot(struct image *img);
+char *decode_test(struct image *img);
 
 /* image operations */
-struct image * image_load(char *name);
-struct image * image_new(int width, int height);
+struct image *image_load(char *name);
+struct image *image_new(int width, int height);
+void image_free(struct image *img);
+void image_display(struct image *img);
 int getgray(struct image *img, int x, int y, int *g);
 int getpixel(struct image *img, int x, int y, int *r, int *g, int *b);
 int setpixel(struct image *img, int x, int y, int r, int g, int b);
@@ -31,8 +35,9 @@ int setpixel(struct image *img, int x, int y, int r, int g, int b);
 void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b);
 struct image *filter_fill_holes(struct image *img);
 struct image *filter_detect_lines(struct image *img);
-struct image *filter_equalize(struct image *img);
+struct image *filter_equalize(struct image *img, int threshold);
 struct image *filter_trick(struct image *img);
 struct image *filter_smooth(struct image *img);
 struct image *filter_median(struct image *img);
+struct image *filter_contrast(struct image *img);
 

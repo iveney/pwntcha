@@ -30,30 +30,48 @@ static struct image *find_glyphs(struct image *img);
 
 /* Global stuff */
 struct { int xmin, ymin, xmax, ymax; } objlist[100];
-int objects = 0, first = -1, last = -1;
+int objects, first, last;
 char *result;
 
 /* Main function */
 char * decode_slashdot(struct image *img)
 {
-    struct image *tmp, *tmp2;
+    struct image *tmp1, *tmp2, *tmp3, *tmp4, *tmp5, *tmp6, *tmp7;
+
+    /* Initialise local data */
+    objects = 0;
+    first = -1;
+    last = -1;
 
     /* Slashdot captchas have 7 characters */
     result = malloc(8 * sizeof(char));
 
     /* Clean image a bit */
-    tmp = filter_detect_lines(img);
-    tmp = filter_fill_holes(tmp);
+    tmp1 = filter_detect_lines(img);
+    tmp2 = filter_fill_holes(tmp1);
 
     /* Detect small objects to guess image orientation */
-    tmp2 = filter_median(tmp);
-    tmp2 = filter_equalize(tmp2);
-    count_objects(tmp2);
+    tmp3 = filter_median(tmp2);
+    tmp4 = filter_equalize(tmp3, 200);
+    count_objects(tmp4);
 
     /* Invert rotation and find glyphs */
-    tmp = rotate(tmp);
-    tmp = filter_median(tmp);
-    tmp = find_glyphs(tmp);
+    tmp5 = rotate(tmp2);
+    tmp6 = filter_median(tmp5);
+    tmp7 = find_glyphs(tmp6);
+
+    /* Clean up our mess */
+    image_free(tmp1);
+    image_free(tmp2);
+    image_free(tmp3);
+    image_free(tmp4);
+    image_free(tmp5);
+    image_free(tmp6);
+    image_free(tmp7);
+
+    /* aaaaaaa means decoding failed */
+    if(!strcmp(result, "aaaaaaa"))
+        result[0] = '\0';
 
     return result;
 }

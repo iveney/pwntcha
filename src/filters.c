@@ -142,7 +142,7 @@ struct image *filter_detect_lines(struct image *img)
     return dst;
 }
 
-struct image *filter_equalize(struct image *img)
+struct image *filter_equalize(struct image *img, int threshold)
 {
     struct image *dst;
     int x, y;
@@ -154,7 +154,7 @@ struct image *filter_equalize(struct image *img)
         for(x = 0; x < img->width; x++)
         {
             getpixel(img, x, y, &r, &g, &b);
-            if(r < 200) r = 50; else r = 200;
+            if(r < threshold) r = 0; else r = 255;
             setpixel(dst, x, y, r, r, r);
         }
 
@@ -240,7 +240,7 @@ struct image *filter_smooth(struct image *img)
 
 struct image *filter_median(struct image *img)
 {
-#define MSIZE 4
+#define MSIZE 3
     struct image *dst;
     int x, y, i, j, val[MSIZE*MSIZE];
     int r, g, b;
@@ -273,6 +273,39 @@ struct image *filter_median(struct image *img)
 
             i = val[MSIZE * MSIZE / 2];
             setpixel(dst, x, y, i, i, i);
+        }
+
+    return dst;
+}
+
+struct image *filter_contrast(struct image *img)
+{
+    struct image *dst;
+    int histo[256];
+    int x, y, i, min = 255, max = 0;
+    int r, g, b;
+
+    dst = image_new(img->width, img->height);
+
+    for(y = 0; y < img->height; y++)
+        for(x = 0; x < img->width; x++)
+        {
+            getgray(img, x, y, &r);
+            if(r < min) min = r;
+            if(r > max) max = r;
+        }
+
+    if(min == max)
+        histo[min] = 127;
+    else
+        for(i = min; i < max; i++)
+            histo[i] = (i - min) * 255 / (max - min);
+
+    for(y = 0; y < img->height; y++)
+        for(x = 0; x < img->width; x++)
+        {
+            getgray(img, x, y, &r);
+            setpixel(dst, x, y, histo[r], histo[r], histo[r]);
         }
 
     return dst;
