@@ -3,7 +3,15 @@ NULL =
 bin_PROGRAMS = pwntcha
 pwntcha_CFLAGS = $(ADDITIONAL_CFLAGS) -Wall -O6
 pwntcha_LDFLAGS = $(ADDITIONAL_LDFLAGS)
-pwntcha_SOURCES = main.c image.c filters.c common.h slashdot.c phpbb.c test.c
+pwntcha_SOURCES = \
+    main.c \
+    image.c \
+    filters.c \
+    common.h \
+    phpbb.c \
+    scode.c \
+    slashdot.c \
+    test.c
 
 if USE_OPENCV
 ADDITIONAL_CFLAGS = `opencv-config --cflags`

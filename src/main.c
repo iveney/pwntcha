@@ -31,11 +31,10 @@ int debug = 1;
 int main(int argc, char *argv[])
 {
     char *mode = "auto";
-
-    argv0 = argv[0];
-
     int c;
     int digit_optind = 0;
+
+    argv0 = argv[0];
 
     for(;;)
     {
@@ -122,6 +121,8 @@ int main(int argc, char *argv[])
             result = decode_test(img);
         else if(!strcmp(mode, "phpbb"))
             result = decode_phpbb(img);
+        else if(!strcmp(mode, "scode"))
+            result = decode_scode(img);
         else if(!strcmp(mode, "slashdot"))
             result = decode_slashdot(img);
         else
@@ -130,6 +131,11 @@ int main(int argc, char *argv[])
             {
                 dprintf("autodetecting phpBB captcha\n");
                 result = decode_phpbb(img);
+            }
+            else if(img->height == 25)
+            {
+                dprintf("autodetecting scode captcha\n");
+                result = decode_scode(img);
             }
             else if(img->height == 69)
             {

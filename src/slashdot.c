@@ -34,7 +34,7 @@ int objects, first, last;
 char *result;
 
 /* Main function */
-char * decode_slashdot(struct image *img)
+char *decode_slashdot(struct image *img)
 {
     struct image *tmp1, *tmp2, *tmp3, *tmp4, *tmp5, *tmp6, *tmp7;
 
