@@ -6,7 +6,7 @@ AC_PREREQ(2.50)
 AC_CONFIG_AUX_DIR(autotools)
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE(pwntcha, 0.1)
+AM_INIT_AUTOMAKE(pwntcha, 0.2)
 AM_CONFIG_HEADER(config.h)
 
 AC_PROG_CC
@@ -53,5 +53,7 @@ fi
 AC_OUTPUT([
   Makefile
   src/Makefile
+  extras/Makefile
+  testsuite/Makefile
 ])
 

@@ -1,16 +1,13 @@
 NULL = 
 
 SUBDIRS = src
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = $(SUBDIRS) extras testsuite
 
 EXTRA_DIST = \
 	bootstrap \
 	ChangeLog \
 	share/font_slashdot.png \
 	share/font_phpbb.png \
-	extras/NOTES \
-	extras/usercp_confirm.php \
-	extras/getphpbbcaptcha.py \
 	$(NULL)
 
 AUTOMAKE_OPTIONS = dist-bzip2
