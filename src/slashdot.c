@@ -45,6 +45,7 @@ char *decode_slashdot(struct image *img)
 
     /* Slashdot captchas have 7 characters */
     result = malloc(8 * sizeof(char));
+    strcpy(result, "       ");
 
     /* Clean image a bit */
     tmp1 = filter_detect_lines(img);
@@ -255,8 +256,6 @@ static struct image *find_glyphs(struct image *img)
             getpixel(img, x, y, &r, &g, &b);
             setpixel(dst, x, y, 255, g, 255);
         }
-
-    strcpy(result, "       ");
 
     for(x = 0; x < font->width; x++)
     {

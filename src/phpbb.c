@@ -37,6 +37,7 @@ char *decode_phpbb(struct image *img)
 
     /* phpBB captchas have 6 characters */
     result = malloc(7 * sizeof(char));
+    strcpy(result, "      ");
 
     if(!font)
     {
@@ -57,8 +58,6 @@ char *decode_phpbb(struct image *img)
             getpixel(img, x, y, &r, &g, &b);
             setpixel(tmp3, x, y, 255, g, 255);
         }
-
-    strcpy(result, "      ");
 
     for(cur = 0; cur < 6; cur++)
     {

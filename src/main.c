@@ -134,18 +134,18 @@ int main(int argc, char *argv[])
         {
             if(img->width == 320 && img->height == 50)
             {
-                dprintf("autodetecting phpBB captcha\n");
+                dprintf("autodetected phpBB captcha\n");
                 result = decode_phpbb(img);
             }
             else if((img->height == 25 || img->height == 30)
                      && count < 10)
             {
-                dprintf("autodetecting scode captcha\n");
+                dprintf("autodetected scode captcha\n");
                 result = decode_scode(img);
             }
             else if(img->height == 69)
             {
-                dprintf("autodetecting slashdot captcha\n");
+                dprintf("autodetected slashdot captcha\n");
                 result = decode_slashdot(img);
             }
             else
