@@ -45,4 +45,5 @@ struct image *filter_trick(struct image *img);
 struct image *filter_smooth(struct image *img);
 struct image *filter_median(struct image *img);
 struct image *filter_contrast(struct image *img);
+int filter_count(struct image *img);
 

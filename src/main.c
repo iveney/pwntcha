@@ -108,6 +108,7 @@ int main(int argc, char *argv[])
     {
         char *input = argv[optind], *result;
         struct image *img;
+        int count;
 
         img = image_load(argv[optind]);
         if(!img)
@@ -117,7 +118,9 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        dprintf("image size %ix%i\n", img->width, img->height);
+        count = filter_count(img);
+        dprintf("image size %ix%i, %i colours\n",
+                img->width, img->height, count);
 
         if(!strcmp(mode, "test"))
             result = decode_test(img);
@@ -134,7 +137,8 @@ int main(int argc, char *argv[])
                 dprintf("autodetecting phpBB captcha\n");
                 result = decode_phpbb(img);
             }
-            else if(img->height == 25 || img->height == 30)
+            else if((img->height == 25 || img->height == 30)
+                     && count < 10)
             {
                 dprintf("autodetecting scode captcha\n");
                 result = decode_scode(img);

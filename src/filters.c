@@ -329,3 +329,25 @@ struct image *filter_contrast(struct image *img)
     return dst;
 }
 
+int filter_count(struct image *img)
+{
+    int histo[256];
+    int x, y, i, count = 0;
+    int r, g, b;
+
+    for(i = 0; i < 256; i++)
+        histo[i] = 0;
+
+    for(y = 0; y < img->height; y++)
+        for(x = 0; x < img->width; x++)
+        {
+            getgray(img, x, y, &r);
+            histo[r] = 1;
+        }
+
+    for(i = 0; i < 256; i++)
+        count += histo[i];
+
+    return count;
+}
+
