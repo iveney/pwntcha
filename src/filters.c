@@ -52,6 +52,24 @@ void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b)
         filter_flood_fill(img, x, y - 1, r, g, b);
 }
 
+struct image *filter_dup(struct image *img)
+{
+    struct image *dst;
+    int x, y;
+    int r, g, b;
+
+    dst = image_new(img->width, img->height);
+
+    for(y = 0; y < img->height; y++)
+        for(x = 0; x < img->width; x++)
+        {
+            getpixel(img, x, y, &r, &g, &b);
+            setpixel(dst, x, y, r, g, b);
+        }
+
+    return dst;
+}
+
 struct image *filter_fill_holes(struct image *img)
 {
     struct image *dst;

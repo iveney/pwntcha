@@ -22,6 +22,7 @@ void dprintf(const char *fmt, ...);
 
 /* available CAPTCHA decoders */
 char *decode_phpbb(struct image *img);
+char *decode_scode(struct image *img);
 char *decode_slashdot(struct image *img);
 char *decode_test(struct image *img);
 
@@ -37,6 +38,7 @@ int setpixel(struct image *img, int x, int y, int r, int g, int b);
 /* image filters */
 void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b);
 struct image *filter_fill_holes(struct image *img);
+struct image *filter_dup(struct image *img);
 struct image *filter_detect_lines(struct image *img);
 struct image *filter_equalize(struct image *img, int threshold);
 struct image *filter_trick(struct image *img);
