@@ -130,7 +130,7 @@ static void find_glyphs(struct image *img)
     struct image *tmp;
     int x, y, i = 0, f;
     int r, g, b;
-    int xmin, xmax, ymin, ymax, startx = 10, cur = 0;
+    int xmin, xmax, ymin, ymax, cur = 0;
     int bestdist, bestfont, bestx, besty, bestch;
 
     for(f = 0; f < FONTS; f++)
@@ -170,7 +170,6 @@ int sqr;
             ymax = fonts[f]->glyphs[i].ymax + 3;
 sqr = sqrt(xmax - xmin);
             for(y = -15; y < 15; y++)
-                //for(x = startx; x < startx + 15; x++)
                 for(x = 22 - (xmax - xmin) / 2 + 25 * cur; x < 28 - (xmax - xmin) / 2 + 25 * cur; x++)
                 {
                     int z, t, dist;
@@ -198,7 +197,6 @@ sqr = sqrt(xmax - xmin);
                         localy = y;
                     }
                 }
-            //fprintf(stderr, "%i (%i,%i)\n", localmin, localx - startx, localy);
             if(localmin < bestdist)
             {
 //printf("  bestch is now %i (%c) in font %i\n", i, fonts[f]->glyphs[i].c, f);
@@ -225,7 +223,6 @@ sqr = sqrt(xmax - xmin);
                 setpixel(tmp, bestx + x, besty + y, r, g, b);
             }
 
-        startx = bestx + xmax - xmin;
         result[cur++] = fonts[bestfont]->glyphs[bestch].c;
     }
 
