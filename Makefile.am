@@ -1,15 +1,11 @@
 NULL = 
 
 SUBDIRS = src
-DIST_SUBDIRS = $(SUBDIRS) extras testsuite
+DIST_SUBDIRS = $(SUBDIRS) extras share
 
 EXTRA_DIST = \
 	bootstrap \
 	ChangeLog \
-	share/font_linuxfr.png \
-	share/font_phpbb.png \
-	share/font_slashdot.png \
-	share/font_vbulletin.png \
 	$(NULL)
 
 AUTOMAKE_OPTIONS = dist-bzip2

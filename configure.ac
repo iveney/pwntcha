@@ -67,6 +67,6 @@ AC_OUTPUT([
   Makefile
   src/Makefile
   extras/Makefile
-  testsuite/Makefile
+  share/Makefile
 ])
 
