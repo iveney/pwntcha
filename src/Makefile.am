@@ -13,6 +13,7 @@ pwntcha_SOURCES = \
     scode.c \
     slashdot.c \
     vbulletin.c \
+    xanga.c \
     test.c
 pwntcha_CFLAGS = $(ADDITIONAL_CFLAGS) -Wall -O6
 pwntcha_LDFLAGS = $(ADDITIONAL_LDFLAGS)

@@ -146,6 +146,8 @@ int main(int argc, char *argv[])
             result = decode_slashdot(img);
         else if(!strcmp(mode, "vbulletin"))
             result = decode_vbulletin(img);
+        else if(!strcmp(mode, "xanga"))
+            result = decode_xanga(img);
         else
         {
             if(img->width == 155 && img->height == 50)
@@ -162,6 +164,11 @@ int main(int argc, char *argv[])
             {
                 dprintf("autodetected phpBB captcha\n");
                 result = decode_phpbb(img);
+            }
+            else if(img->width == 170 && img->height == 50)
+            {
+                dprintf("autodetected Xanga captcha\n");
+                result = decode_xanga(img);
             }
             else if(img->height <= 40 && count < 10)
             {
