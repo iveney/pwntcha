@@ -78,7 +78,7 @@ struct image *image_load(const char *name)
     }
 #endif
 
-    pic->lpVtbl->get_CurDC(pic, &dc);
+    dc = CreateCompatibleDC(NULL);
 
     if(GetDeviceCaps(dc, BITSPIXEL) < 24)
     {
