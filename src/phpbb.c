@@ -66,7 +66,7 @@ char *decode_phpbb(struct image *img)
         distmin = INT_MAX;
         for(i = 0; i < 35; i++)
         {
-            int localmin = INT_MAX localx, localy;
+            int localmin = INT_MAX, localx, localy;
             xmin = i * 40;
             ymin = 0;
             xmax = i * 40 + 40;
