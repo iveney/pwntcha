@@ -17,6 +17,17 @@ struct image
     void *priv;
 };
 
+/* font structure */
+struct font
+{
+    struct image *img;
+    struct glyph
+    {
+        int xmin, xmax, ymin, ymax;
+        int count; /* Black pixel count */
+    } *glyphs;
+};
+
 /* global variables */
 extern char *argv0;
 extern char *share;
@@ -32,6 +43,7 @@ char *decode_phpbb(struct image *img);
 char *decode_scode(struct image *img);
 char *decode_slashdot(struct image *img);
 char *decode_vbulletin(struct image *img);
+char *decode_xanga(struct image *img);
 char *decode_test(struct image *img);
 
 /* image operations */

@@ -24,11 +24,10 @@ static void cut_cells(struct image *img);
 static void find_glyphs(struct image *img);
 
 /* Our macros */
-#define FACTOR 1
-#define FONTNAME "font_slashdot.png" // use with FACTOR = 1
-//#define FONTNAME "font.png" // use with FACTOR = 2
-//#define FONTNAME "font_dilated.png" // use with FACTOR = 2
-static struct image *font = NULL;
+#define FONTNAME "font_slashdot.png"
+
+struct font font;
+struct glyph glyphs[22];
 
 /* Global stuff */
 struct { int xmin, ymin, xmax, ymax; } objlist[100];
@@ -168,13 +167,13 @@ static void rotate(struct image *img)
         cosa = -cosa;
     }
 
-    tmp = image_new(img->width * FACTOR, img->height * FACTOR);
+    tmp = image_new(img->width, img->height);
 
-    for(y = 0; y < img->height * FACTOR; y++)
-        for(x = 0; x < img->width * FACTOR; x++)
+    for(y = 0; y < img->height; y++)
+        for(x = 0; x < img->width; x++)
         {
-            xtmp = 1.0 * (x - img->width * FACTOR / 2) / FACTOR;
-            ytmp = 1.0 * (y - img->height * FACTOR / 2) / FACTOR;
+            xtmp = 1.0 * (x - img->width / 2);
+            ytmp = 1.0 * (y - img->height / 2);
             xdest = xtmp * cosa - ytmp * sina + 0.5 * img->width;
             ydest = ytmp * cosa + xtmp * sina + 0.5 * img->height;
             //R = G = B = 0;
@@ -231,28 +230,23 @@ static void cut_cells(struct image *img)
 static void find_glyphs(struct image *img)
 {
     char all[] = "abcdefgijkmnpqrstvwxyz";
-    struct
-    {
-        int xmin, xmax, ymin, ymax;
-        int count;
-    }
-    glyphs[22];
     struct image *tmp;
     int x, y, i = 0;
     int r, g, b;
     int xmin, xmax, ymin, ymax, incell = 0, count = 0, startx = 0, cur = 0;
     int distmin, distx, disty, distch;
 
-    if(!font)
+    if(!font.img)
     {
         char fontname[BUFSIZ];
         sprintf(fontname, "%s/%s", share, FONTNAME);
-        font = image_load(fontname);
-        if(!font)
+        font.img = image_load(fontname);
+        if(!font.img)
         {
             fprintf(stderr, "cannot load font %s\n", fontname);
             exit(-1);
         }
+        font.glyphs = glyphs;
     }
 
     tmp = image_new(img->width, img->height);
@@ -264,12 +258,12 @@ static void find_glyphs(struct image *img)
             setpixel(tmp, x, y, 255, g, 255);
         }
 
-    for(x = 0; x < font->width; x++)
+    for(x = 0; x < font.img->width; x++)
     {
         int found = 0;
-        for(y = 0; y < font->height; y++)
+        for(y = 0; y < font.img->height; y++)
         {
-            getpixel(font, x, y, &r, &g, &b);
+            getpixel(font.img, x, y, &r, &g, &b);
             if(r < 128)
             {
                 found = 1;
@@ -286,15 +280,15 @@ static void find_glyphs(struct image *img)
             incell = 0;
             xmax = x;
 #if 0
-            ymin = font->height;
+            ymin = font.img->height;
             ymax = 0;
-            for(y = 0; y < font->height; y++)
+            for(y = 0; y < font.img->height; y++)
             {
                 int newx;
                 int gotit = 0;
                 for(newx = xmin; newx < xmax; newx++)
                 {
-                    getpixel(font, newx, y, &r, &g, &b);
+                    getpixel(font.img, newx, y, &r, &g, &b);
                     if(r < 128)
                     {
                         gotit = 1;
@@ -309,13 +303,13 @@ static void find_glyphs(struct image *img)
             }
 #else
             ymin = 0;
-            ymax = font->height;
+            ymax = font.img->height;
 #endif
-            glyphs[i].xmin = xmin;
-            glyphs[i].xmax = xmax;
-            glyphs[i].ymin = ymin;
-            glyphs[i].ymax = ymax;
-            glyphs[i].count = count;
+            font.glyphs[i].xmin = xmin;
+            font.glyphs[i].xmax = xmax;
+            font.glyphs[i].ymin = ymin;
+            font.glyphs[i].ymax = ymax;
+            font.glyphs[i].count = count;
             count = 0;
             i++;
         }
@@ -335,13 +329,13 @@ static void find_glyphs(struct image *img)
         {
             int localmin = INT_MAX, localx, localy;
 //if(all[i] == 'i') continue;
-            xmin = glyphs[i].xmin;
-            ymin = glyphs[i].ymin;
-            xmax = glyphs[i].xmax;
-            ymax = glyphs[i].ymax;
+            xmin = font.glyphs[i].xmin;
+            ymin = font.glyphs[i].ymin;
+            xmax = font.glyphs[i].xmax;
+            ymax = font.glyphs[i].ymax;
             //printf("trying to find %c (%i×%i) - ", all[i], xmax - xmin, ymax - ymin);
-            for(y = -5 * FACTOR; y < 5 * FACTOR; y++)
-                for(x = startx - 5 * FACTOR; x < startx + 5 * FACTOR; x++)
+            for(y = -5; y < 5; y++)
+                for(x = startx - 5; x < startx + 5; x++)
                 {
                     int z, t, dist;
                     dist = 0;
@@ -349,13 +343,13 @@ static void find_glyphs(struct image *img)
                         for(z = 0; z < xmax - xmin; z++)
                         {
                             int r2;
-                            getgray(font, xmin + z, ymin + t, &r);
+                            getgray(font.img, xmin + z, ymin + t, &r);
                             getgray(img, x + z, y + t, &r2);
                             dist += abs(r - r2);
                         }
     //                printf("%i %i -> %i\n", x, y, dist);
                     //dist /= sqrt(xmax - xmin);
-                    dist = dist * 128 / glyphs[i].count;
+                    dist = dist * 128 / font.glyphs[i].count;
                     if(dist < localmin)
                     {
                         localmin = dist;
@@ -377,14 +371,14 @@ static void find_glyphs(struct image *img)
         //printf("min diff: %c - %i (%i, %i)\n", all[distch], distmin, distx, disty);
 
         /* Print min glyph */
-        xmin = glyphs[distch].xmin;
-        ymin = glyphs[distch].ymin;
-        xmax = glyphs[distch].xmax;
-        ymax = glyphs[distch].ymax;
+        xmin = font.glyphs[distch].xmin;
+        ymin = font.glyphs[distch].ymin;
+        xmax = font.glyphs[distch].xmax;
+        ymax = font.glyphs[distch].ymax;
         for(y = 0; y < ymax - ymin; y++)
             for(x = 0; x < xmax - xmin; x++)
             {
-                getpixel(font, xmin + x, ymin + y, &r, &g, &b);
+                getpixel(font.img, xmin + x, ymin + y, &r, &g, &b);
                 if(r > 128) continue;
                 setpixel(tmp, distx + x, disty + y, r, g, b);
             }

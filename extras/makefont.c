@@ -17,16 +17,19 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "SDL.h"
 #include "SDL_ttf.h"
 
 int main(int argc, char *argv[])
 {
+    unsigned char *text;
     SDL_Color bg = { 0xff, 0xff, 0xff, 0 };
     SDL_Color fg = { 0x00, 0x00, 0x00, 0 };
-    SDL_Surface *text;
+    SDL_Surface *surface;
     TTF_Font *font;
+    int i;
 
     if(argc != 5)
     {
@@ -35,6 +38,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    /* Load font */
     TTF_Init();
     font = TTF_OpenFont(argv[1], atoi(argv[2]));
     if(!font)
@@ -45,18 +49,31 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-    text = TTF_RenderUTF8_Shaded(font, argv[3], fg, bg);
-    if(!text)
+    /* Add spaces to string */
+    text = malloc(2 * strlen(argv[3]) * sizeof(char));
+    for(i = 0; argv[3][i]; i++)
     {
-        fprintf(stderr, "text rendering failed: %s\n", SDL_GetError());
+        text[i * 2] = argv[3][i];
+        text[i * 2 + 1] = ' ';
+    }
+    text[i * 2 - 1] = '\0';
+
+    /* Render text to surface */
+    TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+    surface = TTF_RenderUTF8_Shaded(font, argv[3], fg, bg);
+    if(!surface)
+    {
+        fprintf(stderr, "surface rendering failed: %s\n", SDL_GetError());
         TTF_CloseFont(font);
         TTF_Quit();
         return 1;
     }
 
-    SDL_SaveBMP(text, argv[4]);
-    SDL_FreeSurface(text);
+    /* Clean up surface */
+
+    /* Save surface and free everything */
+    SDL_SaveBMP(surface, argv[4]);
+    SDL_FreeSurface(surface);
     TTF_CloseFont(font);
     TTF_Quit();
 
