@@ -101,10 +101,10 @@ static struct image *count_objects(struct image *img)
             for(x = 0; x < dst->width; x++)
             {
                 getpixel(dst, x, y, &r, &g, &b);
-                if(r == 50 && g == 50 && b == 50)
+                if(r == 0 && g == 0 && b == 0)
                 {
                     gotblack = 1;
-                    filter_flood_fill(dst, x, y, 255 - objects, 0, 0);
+                    filter_flood_fill(dst, x, y, 254 - objects, 0, 0);
                     objects++;
                 }
             }
