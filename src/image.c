@@ -15,11 +15,13 @@
 #include "config.h"
 #include "common.h"
 
-#if defined(WIN32)
+#if defined(HAVE_IL_H)
+#   error "DevIL routines not implemented yet"
+#elif defined(HAVE_OLECTL_H)
 #   include <windows.h>
 #   include <ocidl.h>
 #   include <olectl.h>
-BOOL oleload(LPCTSTR name, LPPICTURE* pic);
+static BOOL oleload(LPCTSTR name, LPPICTURE* pic);
 struct priv
 {
     HBITMAP bitmap;
@@ -39,7 +41,8 @@ struct priv
 struct image *image_load(const char *name)
 {
     struct image *img;
-#if defined(WIN32)
+#if defined(HAVE_IL_H)
+#elif defined(HAVE_OLECTL_H)
     struct priv *priv = malloc(sizeof(struct priv));
     LPPICTURE pic = NULL;
     HDC dc;
@@ -57,7 +60,7 @@ struct image *image_load(const char *name)
     if(!priv)
         return NULL;
 
-#if defined(WIN32)
+#if defined(HAVE_OLECTL_H)
     if(!oleload((LPCTSTR)name, &pic))
     {
         free(priv);
@@ -118,7 +121,8 @@ struct image *image_load(const char *name)
 #endif
 
     img = (struct image *)malloc(sizeof(struct image));
-#if defined(WIN32)
+#if defined(HAVE_IL_H)
+#elif defined(HAVE_OLECTL_H)
     img->width = width;
     img->height = height;
     img->pitch = 3 * width;
@@ -152,7 +156,8 @@ struct image *image_load(const char *name)
 struct image *image_new(int width, int height)
 {
     struct image *img;
-#if defined(WIN32)
+#if defined(HAVE_IL_H)
+#elif defined(HAVE_OLECTL_H)
     struct priv *priv = malloc(sizeof(struct priv));
     HDC dc;
     void *data = NULL;
@@ -182,7 +187,8 @@ struct image *image_new(int width, int height)
         return NULL;
 
     img = (struct image *)malloc(sizeof(struct image));
-#if defined(WIN32)
+#if defined(HAVE_IL_H)
+#elif defined(HAVE_OLECTL_H)
     dc = CreateCompatibleDC(NULL);
     if(GetDeviceCaps(dc, BITSPIXEL) < 24)
     {
@@ -232,7 +238,8 @@ struct image *image_new(int width, int height)
 
 void image_free(struct image *img)
 {
-#if defined(WIN32)
+#if defined(HAVE_IL_H)
+#elif defined(HAVE_OLECTL_H)
     struct priv *priv = img->priv;
     DeleteObject(priv->bitmap);
     free(img->priv);
@@ -252,7 +259,8 @@ void image_free(struct image *img)
 
 void image_save(struct image *img, const char *name)
 {
-#if defined(WIN32)
+#if defined(HAVE_IL_H)
+#elif defined(HAVE_OLECTL_H)
 
 #elif defined(HAVE_SDL_IMAGE_H)
     SDL_SaveBMP(img->priv, name);
@@ -306,8 +314,8 @@ int setpixel(struct image *img, int x, int y, int r, int g, int b)
     return 0;
 }
 
-#if defined(WIN32)
-BOOL oleload(LPCTSTR name, LPPICTURE* pic)
+#if defined(HAVE_OLECTL_H)
+static BOOL oleload(LPCTSTR name, LPPICTURE* pic)
 {
     HRESULT ret;
     HANDLE h;
