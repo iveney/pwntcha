@@ -20,6 +20,13 @@ AC_TYPE_SIZE_T
 
 AC_CHECK_FUNCS(getopt_long)
 
+# Use Windows?
+AC_CHECK_HEADERS(olectl.h,
+ [ac_cv_my_have_ole="yes"],
+ [ac_cv_my_have_ole="no"])
+CPPFLAGS="${save_CPPFLAGS}"
+AM_CONDITIONAL(USE_OLE, test "${ac_cv_my_have_ole}" = "yes")
+
 # Use SDL?
 ac_cv_my_have_sdl="no"
 save_CPPFLAGS="${CPPFLAGS}"

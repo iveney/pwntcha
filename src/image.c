@@ -15,7 +15,17 @@
 #include "config.h"
 #include "common.h"
 
-#if defined(HAVE_SDL_IMAGE_H)
+#if defined(WIN32)
+#   include <windows.h>
+#   include <ocidl.h>
+#   include <olectl.h>
+BOOL oleload(LPCTSTR name, LPPICTURE* pic);
+struct priv
+{
+    HBITMAP bitmap;
+    BITMAPINFO info;
+};
+#elif defined(HAVE_SDL_IMAGE_H)
 #   include <SDL_image.h>
 #elif defined(HAVE_IMLIB2_H)
 #   include <Imlib2.h>
@@ -29,7 +39,14 @@
 struct image *image_load(const char *name)
 {
     struct image *img;
-#if defined(HAVE_SDL_IMAGE_H)
+#if defined(WIN32)
+    struct priv *priv = malloc(sizeof(struct priv));
+    LPPICTURE pic = NULL;
+    HDC dc;
+    long scrwidth = 0, scrheight = 0;
+    int width, height, i;
+    void *data = NULL;
+#elif defined(HAVE_SDL_IMAGE_H)
     SDL_Surface *priv = IMG_Load(name);
 #elif defined(HAVE_IMLIB2_H)
     Imlib_Image priv = imlib_load_image(name);
@@ -40,7 +57,55 @@ struct image *image_load(const char *name)
     if(!priv)
         return NULL;
 
-#if defined(HAVE_SDL_IMAGE_H)
+#if defined(WIN32)
+    if(!oleload((LPCTSTR)name, &pic))
+    {
+        free(priv);
+        return NULL;
+    }
+
+    dc = CreateCompatibleDC(NULL);
+
+    for(i = 0; ; i++) 
+    {
+        DEVMODE devMode;
+        devMode.dmSize = sizeof(DEVMODE);
+
+        if(EnumDisplaySettings(NULL, i, &devMode) != 1)
+            break;
+
+        /* printf("mode %i x %i - %i\n", (int)devMode.dmPelsWidth,
+                  (int)devMode.dmPelsHeight, (int)devMode.dmBitsPerPel); */
+    }
+
+    if(GetDeviceCaps(dc, BITSPIXEL) < 24)
+    {
+        fprintf(stderr, "a screen depth of at least 24bpp is required\n");
+        DeleteDC(dc);
+        free(priv);
+        return NULL;
+    }
+
+    pic->lpVtbl->get_Width(pic, &scrwidth);
+    pic->lpVtbl->get_Height(pic, &scrheight);
+    width = (scrwidth * GetDeviceCaps(dc, LOGPIXELSX) + 2540 / 2) / 2540;
+    height = (scrheight * GetDeviceCaps(dc, LOGPIXELSY) + 2540 / 2) / 2540;
+
+    memset(&priv->info, 0, sizeof(BITMAPINFO));
+    priv->info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    priv->info.bmiHeader.biBitCount = 24;
+    priv->info.bmiHeader.biWidth = width;
+    priv->info.bmiHeader.biHeight = -height;
+    priv->info.bmiHeader.biCompression = BI_RGB;
+    priv->info.bmiHeader.biPlanes = 1;
+
+    priv->bitmap = CreateDIBSection(dc, &priv->info, DIB_RGB_COLORS, &data, 0, 0);
+    SelectObject(dc, priv->bitmap);
+    pic->lpVtbl->Render(pic, dc, 0, 0, width, height,
+                        0, scrheight, scrwidth, -scrheight, NULL);
+    pic->lpVtbl->Release(pic);
+    DeleteDC(dc);
+#elif defined(HAVE_SDL_IMAGE_H)
     if(priv->format->BytesPerPixel == 1)
     {
         img = image_new(priv->w, priv->h);
@@ -50,8 +115,14 @@ struct image *image_load(const char *name)
     }
 #endif
 
-    img = malloc(sizeof(struct image));
-#if defined(HAVE_SDL_IMAGE_H)
+    img = (struct image *)malloc(sizeof(struct image));
+#if defined(WIN32)
+    img->width = width;
+    img->height = height;
+    img->pitch = 3 * width;
+    img->channels = 3;
+    img->pixels = data;
+#elif defined(HAVE_SDL_IMAGE_H)
     img->width = priv->w;
     img->height = priv->h;
     img->pitch = priv->pitch;
@@ -79,7 +150,11 @@ struct image *image_load(const char *name)
 struct image *image_new(int width, int height)
 {
     struct image *img;
-#if defined(HAVE_SDL_IMAGE_H)
+#if defined(WIN32)
+    struct priv *priv = malloc(sizeof(struct priv));
+    HDC dc;
+    void *data = NULL;
+#elif defined(HAVE_SDL_IMAGE_H)
     SDL_Surface *priv;
     Uint32 rmask, gmask, bmask, amask;
 #   if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -104,8 +179,31 @@ struct image *image_new(int width, int height)
     if(!priv)
         return NULL;
 
-    img = malloc(sizeof(struct image));
-#if defined(HAVE_SDL_IMAGE_H)
+    img = (struct image *)malloc(sizeof(struct image));
+#if defined(WIN32)
+    dc = CreateCompatibleDC(NULL);
+    if(GetDeviceCaps(dc, BITSPIXEL) < 24)
+    {
+        fprintf(stderr, "a screen depth of at least 24bpp is required\n");
+        DeleteDC(dc);
+        free(priv);
+        return NULL;
+    }
+    priv->info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    priv->info.bmiHeader.biWidth = width;
+    priv->info.bmiHeader.biHeight = -height;
+    priv->info.bmiHeader.biCompression = BI_RGB;
+    priv->info.bmiHeader.biBitCount = 24;
+    priv->info.bmiHeader.biPlanes = 1;
+    priv->bitmap = CreateDIBSection(dc, &priv->info,
+                                    DIB_RGB_COLORS, &data, 0, 0);
+    DeleteDC(dc);
+    img->width = width;
+    img->height = height;
+    img->pitch = 3 * width;
+    img->channels = 3;
+    img->pixels = data;
+#elif defined(HAVE_SDL_IMAGE_H)
     img->width = priv->w;
     img->height = priv->h;
     img->pitch = priv->pitch;
@@ -132,7 +230,11 @@ struct image *image_new(int width, int height)
 
 void image_free(struct image *img)
 {
-#if defined(HAVE_SDL_IMAGE_H)
+#if defined(WIN32)
+    struct priv *priv = img->priv;
+    DeleteObject(priv->bitmap);
+    free(img->priv);
+#elif defined(HAVE_SDL_IMAGE_H)
     SDL_FreeSurface(img->priv);
 #elif defined(HAVE_IMLIB2_H)
     imlib_context_set_image(img->priv);
@@ -148,7 +250,9 @@ void image_free(struct image *img)
 
 void image_save(struct image *img, const char *name)
 {
-#if defined(HAVE_SDL_IMAGE_H)
+#if defined(WIN32)
+
+#elif defined(HAVE_SDL_IMAGE_H)
     SDL_SaveBMP(img->priv, name);
 #elif defined(HAVE_IMLIB2_H)
     imlib_context_set_image(img->priv);
@@ -199,4 +303,74 @@ int setpixel(struct image *img, int x, int y, int r, int g, int b)
 
     return 0;
 }
+
+#if defined(WIN32)
+BOOL oleload(LPCTSTR name, LPPICTURE* pic)
+{
+    HRESULT ret;
+    HANDLE h;
+    DWORD size, read = 0;
+    LPVOID data;
+    HGLOBAL buffer;
+    LPSTREAM stream = NULL;
+
+    h = CreateFile(name, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return FALSE;
+
+    size = GetFileSize(h, NULL);
+    if(size == (DWORD)-1)
+    {
+        CloseHandle(h);
+        return FALSE;
+    }
+
+    buffer = GlobalAlloc(GMEM_MOVEABLE, size);
+    if(!buffer)
+    {
+        CloseHandle(h);
+        return FALSE;
+    }
+
+    data = GlobalLock(buffer);
+    if(!data)
+    {
+        GlobalUnlock(buffer);
+        CloseHandle(h);
+        return FALSE;
+    }
+
+    ret = ReadFile(h, data, size, &read, NULL);
+    GlobalUnlock(buffer);
+    CloseHandle(h);
+
+    if(!ret)
+        return FALSE;
+
+    ret = CreateStreamOnHGlobal(buffer, TRUE, &stream);
+    if(!SUCCEEDED(ret))
+    {
+        if(stream)
+            stream->lpVtbl->Release(stream);
+        return FALSE;
+    }
+
+    if(!stream)
+        return FALSE;
+
+    if(*pic)
+        (*pic)->lpVtbl->Release(*pic);
+
+    ret = OleLoadPicture(stream, size, FALSE, &IID_IPicture, (PVOID *)pic);
+    stream->lpVtbl->Release(stream);
+
+    if(!SUCCEEDED(ret))
+        return FALSE;
+
+    if(!*pic)
+        return FALSE;
+
+    return TRUE;
+}
+#endif
 
