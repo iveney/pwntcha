@@ -18,6 +18,7 @@ struct image
 };
 
 /* global variables */
+extern char *argv0;
 extern char *share;
 
 /* debug function */

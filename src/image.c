@@ -44,7 +44,7 @@ struct image *image_load(const char *name)
     LPPICTURE pic = NULL;
     HDC dc;
     long scrwidth = 0, scrheight = 0;
-    int width, height, i;
+    int width, height;
     void *data = NULL;
 #elif defined(HAVE_SDL_IMAGE_H)
     SDL_Surface *priv = IMG_Load(name);
@@ -64,8 +64,7 @@ struct image *image_load(const char *name)
         return NULL;
     }
 
-    dc = CreateCompatibleDC(NULL);
-
+#if 0
     for(i = 0; ; i++) 
     {
         DEVMODE devMode;
@@ -74,13 +73,16 @@ struct image *image_load(const char *name)
         if(EnumDisplaySettings(NULL, i, &devMode) != 1)
             break;
 
-        /* printf("mode %i x %i - %i\n", (int)devMode.dmPelsWidth,
-                  (int)devMode.dmPelsHeight, (int)devMode.dmBitsPerPel); */
+        printf("mode %i x %i - %i\n", (int)devMode.dmPelsWidth,
+               (int)devMode.dmPelsHeight, (int)devMode.dmBitsPerPel);
     }
+#endif
+
+    pic->lpVtbl->get_CurDC(pic, &dc);
 
     if(GetDeviceCaps(dc, BITSPIXEL) < 24)
     {
-        fprintf(stderr, "a screen depth of at least 24bpp is required\n");
+        fprintf(stderr, "%s: 24bpp screen depth or better required\n", argv0);
         DeleteDC(dc);
         free(priv);
         return NULL;
