@@ -29,7 +29,7 @@ char *decode_linuxfr(struct image *img)
     char *result;
     struct image *tmp;
     int x, y, r, g, b, i, j, c;
-    int stats[40];
+    int *stats = malloc(img->height * sizeof(int));
 
     if(!font)
     {
@@ -145,6 +145,7 @@ char *decode_linuxfr(struct image *img)
     }
 
     image_free(tmp);
+    free(stats);
 
     if(strlen(result) != 7)
     {

@@ -70,6 +70,27 @@ struct image *filter_dup(struct image *img)
     return dst;
 }
 
+struct image *filter_scale(struct image *img, float ratio)
+{
+    struct image *dst;
+    int w, h, x, y;
+    int r, g, b;
+
+    w = ratio * img->width;
+    h = ratio * img->height;
+
+    dst = image_new(w, h);
+
+    for(y = 0; y < h; y++)
+        for(x = 0; x < w; x++)
+        {
+            getpixel(img, x / ratio, y / ratio, &r, &g, &b);
+            setpixel(dst, x, y, r, g, b);
+        }
+
+    return dst;
+}
+
 struct image *filter_fill_holes(struct image *img)
 {
     struct image *dst;

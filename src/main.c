@@ -124,6 +124,8 @@ int main(int argc, char *argv[])
 
         if(!strcmp(mode, "test"))
             result = decode_test(img);
+        else if(!strcmp(mode, "authimage"))
+            result = decode_authimage(img);
         else if(!strcmp(mode, "linuxfr"))
             result = decode_linuxfr(img);
         else if(!strcmp(mode, "phpbb"))
@@ -136,7 +138,12 @@ int main(int argc, char *argv[])
             result = decode_vbulletin(img);
         else
         {
-            if(img->width == 100 && img->height == 40)
+            if(img->width == 155 && img->height == 50)
+            {
+                dprintf("autodetected authimage captcha\n");
+                result = decode_authimage(img);
+            }
+            else if(img->width == 100 && img->height == 40 && count < 6)
             {
                 dprintf("autodetected linuxfr captcha\n");
                 result = decode_linuxfr(img);
@@ -146,10 +153,9 @@ int main(int argc, char *argv[])
                 dprintf("autodetected phpBB captcha\n");
                 result = decode_phpbb(img);
             }
-            else if((img->height == 25 || img->height == 30)
-                     && count < 10)
+            else if(img->height <= 40 && count < 10)
             {
-                dprintf("autodetected scode captcha\n");
+                dprintf("autodetected scode/trencaspammers captcha\n");
                 result = decode_scode(img);
             }
             else if(img->height == 69)
