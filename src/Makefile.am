@@ -13,16 +13,21 @@ pwntcha_SOURCES = \
     slashdot.c \
     test.c
 
-if USE_OPENCV
-ADDITIONAL_CFLAGS = `opencv-config --cflags`
-ADDITIONAL_LDFLAGS = `opencv-config --libs opencv highgui`
+if USE_SDL
+ADDITIONAL_CFLAGS = `sdl-config --cflags`
+ADDITIONAL_LDFLAGS = `sdl-config --libs` -lSDL_image
 else
 if USE_IMLIB2
 ADDITIONAL_CFLAGS = `imlib2-config --cflags` -DX_DISPLAY_MISSING=1
 ADDITIONAL_LDFLAGS = `imlib2-config --libs`
 else
+if USE_OPENCV
+ADDITIONAL_CFLAGS = `opencv-config --cflags`
+ADDITIONAL_LDFLAGS = `opencv-config --libs opencv highgui`
+else
 ADDITIONAL_CFLAGS =
 ADDITIONAL_LDFLAGS =
+endif
 endif
 endif
 
