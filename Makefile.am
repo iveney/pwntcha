@@ -8,6 +8,7 @@ EXTRA_DIST = \
 	ChangeLog \
 	share/font_slashdot.png \
 	share/font_phpbb.png \
+	share/font_vbulletin.png \
 	$(NULL)
 
 AUTOMAKE_OPTIONS = dist-bzip2

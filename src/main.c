@@ -130,6 +130,8 @@ int main(int argc, char *argv[])
             result = decode_scode(img);
         else if(!strcmp(mode, "slashdot"))
             result = decode_slashdot(img);
+        else if(!strcmp(mode, "vbulletin"))
+            result = decode_vbulletin(img);
         else
         {
             if(img->width == 320 && img->height == 50)
@@ -147,6 +149,11 @@ int main(int argc, char *argv[])
             {
                 dprintf("autodetected slashdot captcha\n");
                 result = decode_slashdot(img);
+            }
+            else if(img->height == 61)
+            {
+                dprintf("autodetected vbulletin captcha\n");
+                result = decode_vbulletin(img);
             }
             else
             {

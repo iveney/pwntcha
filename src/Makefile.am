@@ -11,6 +11,7 @@ pwntcha_SOURCES = \
     phpbb.c \
     scode.c \
     slashdot.c \
+    vbulletin.c \
     test.c
 
 if USE_SDL
