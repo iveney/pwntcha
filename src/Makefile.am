@@ -1,9 +1,9 @@
 NULL = 
 
 bin_PROGRAMS = pwntcha
-pwntcha_CFLAGS = $(ADDITIONAL_CFLAGS) -Wall
+pwntcha_CFLAGS = $(ADDITIONAL_CFLAGS) -Wall -O6
 pwntcha_LDFLAGS = $(ADDITIONAL_LDFLAGS)
-pwntcha_SOURCES = main.c image.c slashdot.c
+pwntcha_SOURCES = main.c image.c slashdot.c common.h
 
 if USE_IMLIB2
 ADDITIONAL_CFLAGS = `imlib2-config --cflags` -DX_DISPLAY_MISSING=1

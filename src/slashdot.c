@@ -10,8 +10,8 @@
  */
 
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include "config.h"
@@ -19,9 +19,9 @@
 
 /* Our macros */
 #define FACTOR 1
-//#define FONTNAME "font.png" // use with FACTOR = 2
-//#define FONTNAME "font_dilated.png" // use with FACTOR = 2
-#define FONTNAME "font_dilated_half.png" // use with FACTOR = 1
+//#define FONTNAME "share/font.png" // use with FACTOR = 2
+//#define FONTNAME "share/font_dilated.png" // use with FACTOR = 2
+#define FONTNAME "share/font_dilated_half.png" // use with FACTOR = 1
 
 /* Global stuff */
 char *result;
@@ -604,7 +604,7 @@ while(cur < 7)
 
 char * slashdot_decode(char *image)
 {
-    struct image *img, *tmp, *tmp2, *dst;
+    struct image *img, *tmp, *tmp2;
 
     img = load_image(image);
     if(img == NULL)
