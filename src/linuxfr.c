@@ -76,8 +76,8 @@ char *decode_linuxfr(struct image *img)
          * each line; they're base column candidates */
         for(x = 0; x < img->width - 9 * 7 + 1; x++)
         {
-            int xcan = 1;
-            for(c = 0; c < 7; c++, xcan)
+            int goodx = 1;
+            for(c = 0; c < 7 && goodx; c++)
             {
                 for(j = 3; j < 10; j++)
                 {
@@ -94,50 +94,49 @@ char *decode_linuxfr(struct image *img)
                     }
                     if(count < 2)
                     {
-                        xcan = 0;
+                        goodx = 0;
                         break;
                     }
                 }
             }
-            if(!xcan)
+            if(!goodx)
                 continue;
 
             /* Now we have an (x,y) candidate - try to fit 7 characters */
-            for(c = 0; c < 7; c++, xcan)
+            for(c = 0; c < 7 && goodx; c++)
             {
-                int r2, g2, b2, test, tcan;
-                for(test = 0; test < 62; test++)
+                int r2, g2, b2, ch;
+                int minerror = INT_MAX;
+                for(ch = 0; ch < 62; ch++)
                 {
-                    tcan = 1;
-                    for(j = 0; j < 12; j++, tcan)
+                    int error = 0, goodch = 1;
+                    for(j = 0; j < 12 && goodch; j++)
                         for(i = 0; i < 8; i++)
                         {
                             getpixel(tmp, x + c * 9 + i, y + j, &r, &g, &b);
-                            getpixel(font, test * 9 + i, j, &r2, &g2, &b2);
+                            getpixel(font, ch * 9 + i, j, &r2, &g2, &b2);
                             /* Only die if font is black and image is white */
                             if(r > r2)
                             {
-                                tcan = 0;
+                                goodch = 0;
                                 break;
                             }
+                            else if(r < r2)
+                                error++;
                         }
-                    if(tcan)
+                    if(goodch && error < minerror)
                     {
-                        result[c] = all[test];
+                        minerror = error;
+                        result[c] = all[ch];
                         result[c+1] = '\0';
-                        break;
                     }
                 }
-                if(!tcan)
-                {
-                    xcan = 0;
-                    break;
-                }
+                if(minerror == INT_MAX)
+                    goodx = 0;
             }
-            if(xcan)
-            {
+            /* Wow, that was a good guess! Exit this loop */
+            if(goodx)
                 break;
-            }
         }
     }
 
