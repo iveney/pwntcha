@@ -111,8 +111,8 @@ char *decode_vbulletin(struct image *img)
         for(j = 0; j < font->size; j++)
         {
             int dist = 0;
-            for(y = 0; y < 11; y++)
-                for(x = 0; x < 30; x++)
+            for(y = 0; y < 30; y++)
+                for(x = 0; x < 11; x++)
                 {
                     int r2, g2, b2;
                     getpixel(font->img, 12 * j + x, y, &r, &g, &b);
