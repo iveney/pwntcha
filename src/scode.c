@@ -30,7 +30,7 @@ char *decode_scode(struct image *img)
     /* allocate enough place */
     result = malloc(1024 * sizeof(char));
 
-    /* Detect background: first 3 lines */
+    /* Detect background: first and last 3 lines */
     for(i = 0; i < 256; i++)
         stats[i] = 0;
 
@@ -38,6 +38,8 @@ char *decode_scode(struct image *img)
         for(x = 0; x < img->width; x++)
         {
             getpixel(img, x, y, &r, &g, &b);
+            stats[r]++;
+            getpixel(img, x, img->width - 1 - y, &r, &g, &b);
             stats[r]++;
         }
 
@@ -120,12 +122,47 @@ static char find_glyph(struct image *img, int xmin, int xmax)
         {
             getpixel(img, x, y, &r, &g, &b);
             if(!r)
-                count += y - ymin;
+                count += 5 * (y - ymin) ^ 3 * (x - xmin);
+                //count += y - ymin;
         }
     }
 
     switch(count)
     {
+        /* Scode font */
+        case 778: return '0';
+        case 621: return '1';
+        case 854: return '2';
+        case 784: return '3';
+        case 766: return '4';
+        case 771: return '5';
+        case 976: return '6';
+        case 585: return '7';
+        case 980: return '8';
+        case 896: return '9';
+        /* Small font */
+        case 584: return '0';
+        case 454: return '1';
+        case 517: return '2';
+        case 447: return '3';
+        case 469: return '4';
+        case 472: return '5';
+        case 564: return '6';
+        case 298: return '7';
+        case 560: return '8';
+        case 536: return '9';
+        /* Thin font */
+        case 438: return '0';
+        case 405: return '1';
+        case 485: return '2';
+        case 486: return '3';
+        case 413: return '4';
+        case 509: return '5';
+        case 582: return '6';
+        case 242: return '7';
+        case 579: return '8';
+        case 440: return '9';
+#if 0
         case 162: return '0';
         case 131: return '1';
         case 150: return '2';
@@ -136,6 +173,7 @@ static char find_glyph(struct image *img, int xmin, int xmax)
         case  90: return '7';
         case 180: return '8';
         case 170: return '9';
+#endif
         default:
             dprintf("don't know about checksum %i\n", count);
             return '?';

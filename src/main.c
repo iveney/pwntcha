@@ -117,6 +117,8 @@ int main(int argc, char *argv[])
             continue;
         }
 
+        dprintf("image size %ix%i\n", img->width, img->height);
+
         if(!strcmp(mode, "test"))
             result = decode_test(img);
         else if(!strcmp(mode, "phpbb"))
@@ -132,7 +134,7 @@ int main(int argc, char *argv[])
                 dprintf("autodetecting phpBB captcha\n");
                 result = decode_phpbb(img);
             }
-            else if(img->height == 25)
+            else if(img->height == 25 || img->height == 30)
             {
                 dprintf("autodetecting scode captcha\n");
                 result = decode_scode(img);
