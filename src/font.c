@@ -78,7 +78,7 @@ struct font *font_load_variable(char *file, char *chars)
             for(y = 0; y < font->img->height; y++)
             {
                 getpixel(font->img, x, y, &r, &g, &b);
-                if(r < 240)
+                if(r < 250)
                 {
                     found = 1;
                     count += (255 - r);
@@ -106,7 +106,7 @@ struct font *font_load_variable(char *file, char *chars)
                 for(newx = xmin; newx < xmax; newx++)
                 {
                     getpixel(font->img, newx, y, &r, &g, &b);
-                    if(r < 240)
+                    if(r < 250)
                     {
                         gotit = 1;
                         break;
