@@ -209,6 +209,7 @@ int main(int argc, char *argv[])
         }
 
         printf("%s\n", result);
+        fflush(stdout);
         free(result);
     }
 
