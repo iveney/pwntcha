@@ -1,0 +1,51 @@
+#! /bin/sh
+
+##  bootstrap file for Elk -- Sam Hocevar <sam@zoy.org>
+##  $Id: bootstrap 253 2004-08-09 20:08:52Z sam $
+
+set -x
+set -e
+
+# Get a sane environment, just in case
+LANG=C
+export LANG
+CYGWIN=binmode
+export CYGWIN
+
+# Check for automake
+amvers="no"
+if automake-1.9 --version >/dev/null 2>&1; then
+  amvers="-1.9"
+elif automake-1.8 --version >/dev/null 2>&1; then
+  amvers="-1.8"
+elif automake-1.7 --version >/dev/null 2>&1; then
+  amvers="-1.7"
+elif automake-1.6 --version >/dev/null 2>&1; then
+  amvers="-1.6"
+elif automake-1.5 --version >/dev/null 2>&1; then
+  amvers="-1.5"
+elif automake --version > /dev/null 2>&1; then
+  amvers="`automake --version | sed -e '1s/[^0-9]*//' -e q`"
+  if expr "$amvers" "<" "1.5" > /dev/null 2>&1; then
+    amvers="no"
+  else
+    amvers=""
+  fi
+fi
+
+if test "$amvers" = "no"; then
+  set +x
+  echo "$0: you need automake version 1.5 or later"
+  exit 1
+fi
+
+# Remove old cruft
+rm -f aclocal.m4 configure config.guess config.log config.sub config.cache config.h.in config.h compile ltmain.sh libtool ltconfig missing mkinstalldirs depcomp install-sh INSTALL
+rm -Rf autom4te.cache autotools
+mkdir autotools
+
+aclocal${amvers}
+autoconf
+autoheader
+automake${amvers} --add-missing --copy
+
