@@ -27,3 +27,12 @@ int getgray(struct image *img, int x, int y, int *g);
 int getpixel(struct image *img, int x, int y, int *r, int *g, int *b);
 int setpixel(struct image *img, int x, int y, int r, int g, int b);
 
+/* image filters */
+void flood_fill(struct image *img, int x, int y, int r, int g, int b);
+struct image *fill_holes(struct image *img);
+struct image *detect_lines(struct image *img);
+struct image *equalize(struct image *img);
+struct image *trick(struct image *img);
+struct image *smooth(struct image *img);
+struct image *median(struct image *img);
+
