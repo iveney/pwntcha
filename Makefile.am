@@ -10,6 +10,7 @@ EXTRA_DIST = \
 	share/font_phpbb.png \
 	extras/NOTES \
 	extras/usercp_confirm.php \
+	extras/getphpbbcaptcha.py \
 	$(NULL)
 
 AUTOMAKE_OPTIONS = dist-bzip2
