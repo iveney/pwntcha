@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "config.h"
 #include "common.h"
@@ -62,10 +63,10 @@ char *decode_phpbb(struct image *img)
     for(cur = 0; cur < 6; cur++)
     {
         /* Try to find 1st letter */
-        distmin = 999999999;
+        distmin = INT_MAX;
         for(i = 0; i < 35; i++)
         {
-            int localmin = 99999999, localx, localy;
+            int localmin = INT_MAX localx, localy;
             xmin = i * 40;
             ymin = 0;
             xmax = i * 40 + 40;

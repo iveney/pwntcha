@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <math.h>
 
 #include "config.h"
@@ -323,10 +324,10 @@ static struct image *find_glyphs(struct image *img)
     while(cur < 7)
     {
         /* Try to find 1st letter */
-        distmin = 999999999;
+        distmin = INT_MAX;
         for(i = 0; i < 22; i++)
         {
-            int localmin = 99999999, localx, localy;
+            int localmin = INT_MAX, localx, localy;
 //if(all[i] == 'i') continue;
             xmin = glyphs[i].xmin;
             ymin = glyphs[i].ymin;
