@@ -88,12 +88,12 @@ static void find_glyphs(struct image *img)
                             getgray(fonts[f]->img, xmin + z, ymin + t, &r);
                             getgray(img, x + z, y + t, &r2);
                             if(r < r2)
-                                dist += abs(r - r2);
+                                dist += (r - r2) * (r - r2);
                             else
-                                dist += abs(r - r2) * 3 / 4;
+                                dist += (r - r2) * (r - r2) / 2;
                         }
                     //dist = dist * 128 / fonts[f]->glyphs[i].count;
-                    dist  = dist * 1024 / (xmax - xmin - 2 * DELTA);
+                    dist  = dist / (xmax - xmin - 2 * DELTA) / (xmax - xmin - 2 * DELTA);
                     if(dist < localmin)
                     {
                         localmin = dist;
@@ -123,12 +123,15 @@ static void find_glyphs(struct image *img)
             {
                 getpixel(fonts[bestfont]->img, xmin + x, ymin + y, &r, &g, &b);
                 if(r > 128)
-                    continue;
+                {
+                    getpixel(img, bestx + x, besty + y, &r, &g, &b);
+                    r = 255;
+                }
                 setpixel(img, bestx + x, besty + y, r, g, b);
             }
 #endif
 
-        startx = bestx + xmax - xmin;
+        startx = bestx + fonts[bestfont]->glyphs[bestch].xmax - fonts[bestfont]->glyphs[bestch].xmin;
         result[cur++] = fonts[bestfont]->glyphs[bestch].c;
     }
 }
