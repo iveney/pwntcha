@@ -22,3 +22,10 @@ font_linuxfr.php
    This file is used to create the linuxfr font.
 
   Usage: php4 font_linuxfr.php > font_linuxfr.png
+
+makefont.c
+----------
+   This program is used to do a bitmap drawing of a ttf font.
+
+  Usage: makefont <font.ttf> <size> <text> <output.bmp>
+
