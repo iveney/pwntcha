@@ -216,11 +216,13 @@ struct image *filter_equalize(struct image *img, int threshold)
         threshold = -threshold;
     }
 
+    threshold *= 3;
+
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
         {
             getpixel(img, x, y, &r, &g, &b);
-            if(r < threshold)
+            if(r + g + b < threshold)
                 setpixel(dst, x, y, min, min, min);
             else
                 setpixel(dst, x, y, max, max, max);
