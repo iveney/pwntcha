@@ -20,7 +20,7 @@
 static struct image *find_glyphs(struct image *img);
 
 /* Our macros */
-#define FONTNAME "share/font_clubic.png"
+#define FONTNAME "font_clubic.png"
 static struct image *font = NULL;
 char *result;
 
@@ -31,10 +31,12 @@ char *decode_clubic(struct image *img)
 
     if(!font)
     {
-        font = image_load(FONTNAME);
+        char fontname[BUFSIZ];
+        sprintf(fontname, "%s/%s", share, FONTNAME);
+        font = image_load(fontname);
         if(!font)
         {
-            fprintf(stderr, "cannot load font %s\n", FONTNAME);
+            fprintf(stderr, "cannot load font %s\n", fontname);
             exit(-1);
         }
     }

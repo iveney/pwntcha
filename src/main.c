@@ -26,6 +26,7 @@
 
 /* Used for the debug messages */
 char *argv0 = NULL;
+char *share = NULL;
 int debug = 1;
 
 int main(int argc, char *argv[])
@@ -35,6 +36,7 @@ int main(int argc, char *argv[])
     int digit_optind = 0;
 
     argv0 = argv[0];
+    share = "share";
 
     for(;;)
     {
@@ -43,16 +45,17 @@ int main(int argc, char *argv[])
         int option_index = 0;
         static struct option long_options[] =
         {
-            { "mode", 1, 0, 'm' },
             { "help", 0, 0, 'h' },
+            { "mode", 1, 0, 'm' },
+            { "share", 1, 0, 's' },
             { "quiet", 0, 0, 'q' },
             { "version", 0, 0, 'v' },
             { 0, 0, 0, 0 }
         };
 
-        c = getopt_long(argc, argv, "hm:qv", long_options, &option_index);
+        c = getopt_long(argc, argv, "hm:s:qv", long_options, &option_index);
 #else
-        c = getopt(argc, argv, "hm:qv");
+        c = getopt(argc, argv, "hm:s:qv");
 #endif
         if(c == -1)
             break;
@@ -62,15 +65,17 @@ int main(int argc, char *argv[])
         case 'h': /* --help */
             printf("Usage: %s [OPTION]... FILE...\n", argv[0]);
 #ifdef HAVE_GETOPT_LONG
-            printf("  -m, --mode      force operating mode\n");
-            printf("  -q, --quiet     do not print information messages\n");
-            printf("  -h, --help      display this help and exit\n");
-            printf("  -v, --version   output version information and exit\n");
+            printf("  -m, --mode <mode>  force operating mode\n");
+            printf("  -s, --share <dir>  specify shared dir\n");
+            printf("  -q, --quiet        do not print information messages\n");
+            printf("  -h, --help         display this help and exit\n");
+            printf("  -v, --version      output version information and exit\n");
 #else
-            printf("  -m     force operating mode\n");
-            printf("  -q     do not print information messages\n");
-            printf("  -h     display this help and exit\n");
-            printf("  -v     output version information and exit\n");
+            printf("  -m <mode>   force operating mode\n");
+            printf("  -s <dir>    specify shared dir\n");
+            printf("  -q          do not print information messages\n");
+            printf("  -h          display this help and exit\n");
+            printf("  -v          output version information and exit\n");
 #endif
             return 0;
         case 'm': /* --mode */
@@ -78,6 +83,9 @@ int main(int argc, char *argv[])
             break;
         case 'q': /* --quiet */
             debug = 0;
+            break;
+        case 's': /* --quiet */
+            share = optarg;
             break;
         case 'v': /* --version */
             printf("pwntcha (captcha decoder) %s\n", VERSION);

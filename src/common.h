@@ -17,6 +17,9 @@ struct image
     void *priv;
 };
 
+/* global variables */
+extern char *share;
+
 /* debug function */
 void dprintf(const char *fmt, ...);
 

@@ -19,7 +19,7 @@
 #include "common.h"
 
 /* Our macros */
-#define FONTNAME "share/font_phpbb.png"
+#define FONTNAME "font_phpbb.png"
 
 static struct image *find_glyphs(struct image *img);
 
@@ -61,8 +61,7 @@ char *decode_test(struct image *img)
 static struct image *find_glyphs(struct image *img)
 {
     char all[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-    struct image *dst;
-    struct image *font = image_load(FONTNAME);
+    struct image *dst, *font;
     int x, y, i = 0;
     int r, g, b;
     int xmin, xmax, ymin, ymax, incell = 0, count = 0, cur = 0, offset = -1;
@@ -70,8 +69,14 @@ static struct image *find_glyphs(struct image *img)
 
     if(!font)
     {
-        fprintf(stderr, "cannot load font %s\n", FONTNAME);
-        exit(-1);
+        char fontname[BUFSIZ];
+        sprintf(fontname, "%s/%s", share, FONTNAME);
+        font = image_load(fontname);
+        if(!font)
+        {
+            fprintf(stderr, "cannot load font %s\n", fontname);
+            exit(-1);
+        }
     }
 
     dst = image_new(img->width, img->height);

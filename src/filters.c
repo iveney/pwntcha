@@ -17,12 +17,6 @@
 #include "config.h"
 #include "common.h"
 
-/* Our macros */
-#define FACTOR 1
-//#define FONTNAME "share/font.png" // use with FACTOR = 2
-//#define FONTNAME "share/font_dilated.png" // use with FACTOR = 2
-#define FONTNAME "share/font_dilated_half.png" // use with FACTOR = 1
-
 /* Functions */
 void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b)
 {

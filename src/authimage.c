@@ -18,7 +18,7 @@
 #include "config.h"
 #include "common.h"
 
-#define FONTNAME "share/font_authimage.png"
+#define FONTNAME "font_authimage.png"
 static struct image *font = NULL;
 
 /* Main function */
@@ -31,10 +31,12 @@ char *decode_authimage(struct image *img)
 
     if(!font)
     {
-        font = image_load(FONTNAME);
+        char fontname[BUFSIZ];
+        sprintf(fontname, "%s/%s", share, FONTNAME);
+        font = image_load(fontname);
         if(!font)
         {
-            fprintf(stderr, "cannot load font %s\n", FONTNAME);
+            fprintf(stderr, "cannot load font %s\n", fontname);
             exit(-1);
         }
     }

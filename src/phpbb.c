@@ -18,7 +18,7 @@
 #include "common.h"
 
 /* Our macros */
-#define FONTNAME "share/font_phpbb.png"
+#define FONTNAME "font_phpbb.png"
 static struct image *font = NULL;
 
 /* Main function */
@@ -34,10 +34,12 @@ char *decode_phpbb(struct image *img)
 
     if(!font)
     {
-        font = image_load(FONTNAME);
+        char fontname[BUFSIZ];
+        sprintf(fontname, "%s/%s", share, FONTNAME);
+        font = image_load(fontname);
         if(!font)
         {
-            fprintf(stderr, "cannot load font %s\n", FONTNAME);
+            fprintf(stderr, "cannot load font %s\n", fontname);
             exit(-1);
         }
     }

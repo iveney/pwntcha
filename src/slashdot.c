@@ -25,9 +25,9 @@ static struct image *find_glyphs(struct image *img);
 
 /* Our macros */
 #define FACTOR 1
-#define FONTNAME "share/font_slashdot.png" // use with FACTOR = 1
-//#define FONTNAME "share/font.png" // use with FACTOR = 2
-//#define FONTNAME "share/font_dilated.png" // use with FACTOR = 2
+#define FONTNAME "font_slashdot.png" // use with FACTOR = 1
+//#define FONTNAME "font.png" // use with FACTOR = 2
+//#define FONTNAME "font_dilated.png" // use with FACTOR = 2
 static struct image *font = NULL;
 
 /* Global stuff */
@@ -245,10 +245,12 @@ static struct image *find_glyphs(struct image *img)
 
     if(!font)
     {
-        font = image_load(FONTNAME);
+        char fontname[BUFSIZ];
+        sprintf(fontname, "%s/%s", share, FONTNAME);
+        font = image_load(fontname);
         if(!font)
         {
-            fprintf(stderr, "cannot load font %s\n", FONTNAME);
+            fprintf(stderr, "cannot load font %s\n", fontname);
             exit(-1);
         }
     }
