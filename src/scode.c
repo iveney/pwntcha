@@ -50,21 +50,35 @@ char *decode_scode(struct image *img)
     for(i = 0; i < 3 * 256; i++)
         stats[i] = 0;
 
-    for(y = 0; y < 3; y++)
+    for(y = 0; y < 6; y++)
+    {
+        int y2 = (y & 1) ? img->width - 1 - y / 2 : y / 2;
         for(x = 0; x < img->width; x++)
         {
-            getpixel(tmp1, x, y, &r, &g, &b);
-            stats[r + g + b]++;
-            getpixel(tmp1, x, img->height - 1 - y, &r, &g, &b);
-            stats[r + g + b]++;
+            getpixel(tmp1, x, y2, &r, &g, &b);
+            if(stats[r + g + b] == 0)
+            {
+                /* Parse middle line to see if this colour can be removed */
+                int available = 0, x2, r2, g2, b2;
+                stats[r + g + b] = 1;
+                for(x2 = 0; x2 < img->width; x2++)
+                {
+                    getpixel(tmp1, x2, img->width / 2, &r2, &g2, &b2);
+                    if(stats[r2 + g2 + b2] == 0)
+                        available = 1;
+                }
+                if(!available)
+                    stats[r + g + b] = 2;
+            }
         }
+    }
 
     /* Set non-background colours to 0 */
     for(y = 0; y < img->height; y++)
         for(x = 0; x < img->width; x++)
         {
             getpixel(tmp1, x, y, &r, &g, &b);
-            if(stats[r + g + b])
+            if(stats[r + g + b] == 1)
                 setpixel(tmp1, x, y, 255, 255, 255);
             else
                 setpixel(tmp1, x, y, 0, 0, 0);
