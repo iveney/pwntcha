@@ -202,6 +202,17 @@ static char find_glyph(struct image *img, int xmin, int xmax)
         case 180: return '8';
         case 170: return '9';
 #endif
+        /* ourcolony font */
+        case 4020: return '0';
+        case 1970: return '1';
+        case 4627: return '2';
+        case 4410: return '3';
+        case 4468: return '4';
+        case 4329: return '5';
+        case 4910: return '6';
+        case 2378: return '7';
+        case 5375: return '8';
+        case 4710: return '9';
         default:
             dprintf("don't know about checksum %i\n", count);
             return '?';

@@ -10,6 +10,7 @@ pwntcha_SOURCES = \
     authimage.c \
     clubic.c \
     linuxfr.c \
+    livejournal.c \
     lmt.c \
     paypal.c \
     phpbb.c \

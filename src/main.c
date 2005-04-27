@@ -138,6 +138,8 @@ int main(int argc, char *argv[])
             result = decode_clubic(img);
         else if(!strcmp(mode, "linuxfr"))
             result = decode_linuxfr(img);
+        else if(!strcmp(mode, "livejournal"))
+            result = decode_livejournal(img);
         else if(!strcmp(mode, "lmt"))
             result = decode_lmt(img);
         else if(!strcmp(mode, "paypal"))
@@ -158,6 +160,11 @@ int main(int argc, char *argv[])
             {
                 dprintf("autodetected authimage captcha\n");
                 result = decode_authimage(img);
+            }
+            else if(img->width == 175 && img->height == 35)
+            {
+                dprintf("autodetected livejournal captcha\n");
+                result = decode_livejournal(img);
             }
             else if(img->width == 100 && img->height == 40 && count < 6)
             {
