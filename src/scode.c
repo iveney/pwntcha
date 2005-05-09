@@ -24,7 +24,7 @@ char *decode_scode(struct image *img)
     char *result;
     int stats[3 * 256];
     int x, y, i, incell = 0, cur = 0, xmin = 0;
-    int r, g, b;
+    int r, g, b, r2, g2, b2;
     struct image *tmp1;
 
     /* allocate enough place */
@@ -33,22 +33,30 @@ char *decode_scode(struct image *img)
     tmp1 = image_dup(img);
 
     /* Remove border */
+    getpixel(img, 0, 0, &r2, &g2, &b2);
     getpixel(img, 1, 1, &r, &g, &b);
-    for(y = 0; y < img->height; y++)
-    {
-        setpixel(tmp1, 0, y, r, g, b);
-        setpixel(tmp1, img->width - 1, y, r, g, b);
-    }
 
-    for(x = 0; x < img->width; x++)
+    if(r != r2 || g != g2 || b != b2)
     {
-        setpixel(tmp1, x, 0, r, g, b);
-        setpixel(tmp1, x, img->height - 1, r, g, b);
+        for(y = 0; y < img->height; y++)
+        {
+            setpixel(tmp1, 0, y, r, g, b);
+            setpixel(tmp1, img->width - 1, y, r, g, b);
+        }
+
+        for(x = 0; x < img->width; x++)
+        {
+            setpixel(tmp1, x, 0, r, g, b);
+            setpixel(tmp1, x, img->height - 1, r, g, b);
+        }
     }
 
     /* Detect background: first and last 3 lines */
     for(i = 0; i < 3 * 256; i++)
         stats[i] = 0;
+
+    /* Set (0, 0) colour to background */
+    stats[r2 + g2 + b2] = 1;
 
     for(y = 0; y < 6; y++)
     {
