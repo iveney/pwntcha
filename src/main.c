@@ -206,6 +206,11 @@ int main(int argc, char *argv[])
                 dprintf("autodetected slashdot captcha\n");
                 result = decode_slashdot(img);
             }
+            else if(img->width == 200 && img->height == 40)
+            {
+                dprintf("autodetected tickets.com captcha\n");
+                result = decode_tickets(img);
+            }
             else if(img->height == 61)
             {
                 dprintf("autodetected vbulletin captcha\n");

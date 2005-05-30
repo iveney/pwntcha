@@ -16,6 +16,7 @@ pwntcha_SOURCES = \
     phpbb.c \
     scode.c \
     slashdot.c \
+    tickets.c \
     vbulletin.c \
     xanga.c \
     test.c
