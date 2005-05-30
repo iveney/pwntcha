@@ -37,7 +37,7 @@ char *decode_livejournal(struct image *img)
     filter_median(tmp);
 //    filter_smooth(tmp);
 //    filter_contrast(tmp);
-    filter_equalize(tmp, 128);
+    filter_threshold(tmp, 128);
 image_save(tmp, "foo.bmp");
     find_glyphs(tmp);
 

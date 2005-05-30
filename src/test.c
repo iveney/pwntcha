@@ -31,7 +31,7 @@ char *decode_test(struct image *img)
     tmp = image_dup(img);
     filter_smooth(tmp);
     filter_median(tmp);
-    filter_equalize(tmp, 130);
+    filter_threshold(tmp, 130);
     filter_median(tmp);
 
     image_free(tmp);

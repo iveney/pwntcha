@@ -42,9 +42,9 @@ char *decode_authimage(struct image *img)
     tmp = image_dup(img);
     filter_scale(tmp, 2.0);
     getpixel(tmp, 0, 0, &r, &g, &b);
-    filter_equalize(tmp, r * 3 / 4);
+    filter_threshold(tmp, r * 3 / 4);
     filter_smooth(tmp);
-    filter_equalize(tmp, 220);
+    filter_threshold(tmp, 220);
 
     for(i = 0; i < 6; i++)
     {

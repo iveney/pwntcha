@@ -42,9 +42,9 @@ char *decode_vbulletin(struct image *img)
     tmp = image_dup(img);
     getpixel(tmp, 0, 0, &r, &g, &b);
     if(r < 50)
-        filter_equalize(tmp, 128);
+        filter_threshold(tmp, 128);
     else
-        filter_equalize(tmp, -128);
+        filter_threshold(tmp, -128);
 
     /* Remove garbage around the cells */
     for(x = 0; x < tmp->width; x++)

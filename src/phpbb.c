@@ -44,7 +44,7 @@ char *decode_phpbb(struct image *img)
     tmp2 = image_new(img->width, img->height);
 
     filter_smooth(tmp1);
-    filter_equalize(tmp1, 128);
+    filter_threshold(tmp1, 128);
 
     for(x = 0; x < img->width; x++)
         for(y = 0; y < img->height; y++)

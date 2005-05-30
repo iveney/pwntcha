@@ -49,7 +49,7 @@ char *decode_slashdot(struct image *img)
     /* Detect small objects to guess image orientation */
     tmp2 = image_dup(tmp1);
     filter_median(tmp2);
-    filter_equalize(tmp2, 200);
+    filter_threshold(tmp2, 200);
     count_objects(tmp2);
 
     /* Invert rotation and find glyphs */

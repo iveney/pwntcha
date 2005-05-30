@@ -43,7 +43,7 @@ char *decode_linuxfr(struct image *img)
     stats = malloc(img->height * sizeof(int));
 
     tmp = image_dup(img);
-    filter_equalize(tmp, 150);
+    filter_threshold(tmp, 150);
 
     for(y = 0; y < tmp->height; y++)
     {

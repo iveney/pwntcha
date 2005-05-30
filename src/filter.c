@@ -201,7 +201,7 @@ void filter_detect_lines(struct image *img)
     image_free(dst);
 }
 
-void filter_equalize(struct image *img, int threshold)
+void filter_threshold(struct image *img, int threshold)
 {
     struct image *dst;
     int x, y;

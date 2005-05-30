@@ -72,7 +72,7 @@ void filter_fill_holes(struct image *img);
 void filter_scale(struct image *img, float ratio);
 void filter_black_stuff(struct image *img);
 void filter_detect_lines(struct image *img);
-void filter_equalize(struct image *img, int threshold);
+void filter_threshold(struct image *img, int threshold);
 void filter_trick(struct image *img);
 void filter_smooth(struct image *img);
 void filter_median(struct image *img);

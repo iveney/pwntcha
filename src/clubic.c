@@ -32,7 +32,7 @@ char *decode_clubic(struct image *img)
     strcpy(result, "      ");
 
     tmp = image_dup(img);
-    filter_equalize(tmp, 200);
+    filter_threshold(tmp, 200);
     find_glyphs(tmp);
 
     image_free(tmp);

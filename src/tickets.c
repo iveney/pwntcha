@@ -46,7 +46,7 @@ char *decode_tickets(struct image *img)
 
     /* captcha is jpeg; threshold the image */
     tmp = image_dup(img);
-    filter_equalize(tmp, 127);
+    filter_threshold(tmp, 127);
 
     /* Guess all glyphs */
     curx = 50;

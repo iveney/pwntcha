@@ -35,7 +35,7 @@ char *decode_xanga(struct image *img)
     tmp = image_dup(img);
 image_save(tmp, "xanga1.bmp");
     /* Clean image a bit */
-//    filter_equalize(tmp, 200);
+//    filter_threshold(tmp, 200);
     filter_contrast(tmp);
     //filter_detect_lines(tmp);
 image_save(tmp, "xanga2.bmp");
@@ -47,14 +47,14 @@ image_save(tmp, "xanga3.bmp");
     //filter_detect_lines(tmp);
 //    filter_median(tmp);
 //image_save(tmp, "xanga4.bmp");
-//    filter_equalize(tmp, 128);
+//    filter_threshold(tmp, 128);
     filter_contrast(tmp);
 image_save(tmp, "xanga4.bmp");
 
 #if 0
     /* Detect small objects to guess image orientation */
     filter_median(tmp);
-    filter_equalize(tmp, 200);
+    filter_threshold(tmp, 200);
 
     /* Invert rotation and find glyphs */
     filter_median(tmp);
