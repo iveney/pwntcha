@@ -93,7 +93,6 @@ char *decode_tickets(struct image *img)
         curx = x + fonts[f]->glyphs[i].xmax - fonts[f]->glyphs[i].xmin;
     }
 
-    image_save(tmp, "woops.bmp");
     image_free(tmp);
 
     return result;
