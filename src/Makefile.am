@@ -19,6 +19,7 @@ pwntcha_SOURCES = \
     tickets.c \
     vbulletin.c \
     xanga.c \
+    easter-eggs.c \
     test.c
 pwntcha_CFLAGS = $(ADDITIONAL_CFLAGS) -Wall -O6
 pwntcha_LDFLAGS = $(ADDITIONAL_LDFLAGS)

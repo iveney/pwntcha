@@ -158,63 +158,68 @@ int main(int argc, char *argv[])
         {
             if(img->width == 155 && img->height == 50)
             {
-                dprintf("autodetected authimage captcha\n");
+                dprintf("probably an authimage captcha\n");
                 result = decode_authimage(img);
             }
             else if(img->width == 175 && img->height == 35)
             {
-                dprintf("autodetected livejournal captcha\n");
+                dprintf("probably a livejournal captcha\n");
                 result = decode_livejournal(img);
             }
             else if(img->width == 100 && img->height == 40 && count < 6)
             {
-                dprintf("autodetected linuxfr captcha\n");
+                dprintf("probably a linuxfr captcha\n");
                 result = decode_linuxfr(img);
             }
             else if(img->width == 69 && img->height == 35)
             {
-                dprintf("autodetected lmt.lv captcha\n");
+                dprintf("probably a lmt.lv captcha\n");
                 result = decode_lmt(img);
             }
             else if(img->width == 208 && img->height == 26)
             {
-                dprintf("autodetected Paypal captcha\n");
+                dprintf("probably a Paypal captcha\n");
                 result = decode_paypal(img);
             }
             else if(img->width == 320 && img->height == 50)
             {
-                dprintf("autodetected phpBB captcha\n");
+                dprintf("probably a phpBB captcha\n");
                 result = decode_phpbb(img);
             }
             else if(img->width == 170 && img->height == 50)
             {
-                dprintf("autodetected Xanga captcha\n");
+                dprintf("probably a Xanga captcha\n");
                 result = decode_xanga(img);
             }
             else if(img->height <= 40 && count < 10)
             {
-                dprintf("autodetected scode/trencaspammers captcha\n");
+                dprintf("probably a scode/trencaspammers captcha\n");
                 result = decode_scode(img);
             }
             else if(img->height <= 30 && count < 100)
             {
-                dprintf("autodetected clubic captcha\n");
+                dprintf("probably a clubic captcha\n");
                 result = decode_clubic(img);
             }
             else if(img->height == 69)
             {
-                dprintf("autodetected slashdot captcha\n");
+                dprintf("probably a slashdot captcha\n");
                 result = decode_slashdot(img);
             }
             else if(img->width == 200 && img->height == 40)
             {
-                dprintf("autodetected tickets.com captcha\n");
+                dprintf("probably a tickets.com captcha\n");
                 result = decode_tickets(img);
             }
             else if(img->height == 61)
             {
-                dprintf("autodetected vbulletin captcha\n");
+                dprintf("probably a vbulletin captcha\n");
                 result = decode_vbulletin(img);
+            }
+            else if(img->width == 480 && img->height == 360 && count == 253)
+            {
+                dprintf("probably not a captcha\n");
+                result = decode_easter_eggs(img);
             }
             else
             {
