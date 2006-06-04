@@ -221,8 +221,9 @@ static char find_glyph(struct image *img, int xmin, int xmax)
         case 2378: return '7';
         case 5375: return '8';
         case 4710: return '9';
+        /* quotatispro font */
         default:
-            dprintf("don't know about checksum %i\n", count);
+            pwnprint("don't know about checksum %i\n", count);
             return '?';
     }
 }

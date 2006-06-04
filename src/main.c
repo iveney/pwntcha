@@ -121,14 +121,14 @@ int main(int argc, char *argv[])
         img = image_load(argv[optind]);
         if(!img)
         {
-            dprintf("cannot load %s\n", input);
+            pwnprint("cannot load %s\n", input);
             printf("\n");
             continue;
         }
 
         count = filter_count(img);
-        dprintf("image size %ix%i, %i colours\n",
-                img->width, img->height, count);
+        pwnprint("image size %ix%i, %i colours\n",
+                 img->width, img->height, count);
 
         if(!strcmp(mode, "test"))
             result = decode_test(img);
@@ -136,6 +136,8 @@ int main(int argc, char *argv[])
             result = decode_authimage(img);
         else if(!strcmp(mode, "clubic"))
             result = decode_clubic(img);
+        else if(!strcmp(mode, "java"))
+            result = decode_java(img);
         else if(!strcmp(mode, "linuxfr"))
             result = decode_linuxfr(img);
         else if(!strcmp(mode, "livejournal"))
@@ -158,72 +160,77 @@ int main(int argc, char *argv[])
         {
             if(img->width == 155 && img->height == 50)
             {
-                dprintf("probably an authimage captcha\n");
+                pwnprint("probably an authimage captcha\n");
                 result = decode_authimage(img);
             }
             else if(img->width == 175 && img->height == 35)
             {
-                dprintf("probably a livejournal captcha\n");
+                pwnprint("probably a livejournal captcha\n");
                 result = decode_livejournal(img);
             }
             else if(img->width == 100 && img->height == 40 && count < 6)
             {
-                dprintf("probably a linuxfr captcha\n");
+                pwnprint("probably a linuxfr captcha\n");
                 result = decode_linuxfr(img);
             }
             else if(img->width == 69 && img->height == 35)
             {
-                dprintf("probably a lmt.lv captcha\n");
+                pwnprint("probably a lmt.lv captcha\n");
                 result = decode_lmt(img);
             }
             else if(img->width == 208 && img->height == 26)
             {
-                dprintf("probably a Paypal captcha\n");
+                pwnprint("probably a Paypal captcha\n");
                 result = decode_paypal(img);
             }
             else if(img->width == 320 && img->height == 50)
             {
-                dprintf("probably a phpBB captcha\n");
+                pwnprint("probably a phpBB captcha\n");
                 result = decode_phpbb(img);
             }
             else if(img->width == 170 && img->height == 50)
             {
-                dprintf("probably a Xanga captcha\n");
+                pwnprint("probably a Xanga captcha\n");
                 result = decode_xanga(img);
             }
             else if(img->height <= 40 && count < 10)
             {
-                dprintf("probably a scode/trencaspammers captcha\n");
+                pwnprint("probably a scode/trencaspammers captcha\n");
                 result = decode_scode(img);
             }
             else if(img->height <= 30 && count < 100)
             {
-                dprintf("probably a clubic captcha\n");
+                pwnprint("probably a clubic captcha\n");
                 result = decode_clubic(img);
             }
             else if(img->height == 69)
             {
-                dprintf("probably a slashdot captcha\n");
+                pwnprint("probably a slashdot captcha\n");
                 result = decode_slashdot(img);
+            }
+            else if(img->width == 200 && img->height == 100)
+            {
+                pwnprint("probably a java captcha\n");
+                result = decode_java(img);
             }
             else if(img->width == 200 && img->height == 40)
             {
-                dprintf("probably a tickets.com captcha\n");
+                pwnprint("probably a tickets.com captcha\n");
                 result = decode_tickets(img);
             }
             else if(img->height == 61)
             {
-                dprintf("probably a vbulletin captcha\n");
+                pwnprint("probably a vbulletin captcha\n");
                 result = decode_vbulletin(img);
             }
             else if(img->width == 480 && img->height == 360 && count == 253)
             {
-                dprintf("probably not a captcha\n");
+                pwnprint("probably not a captcha\n");
                 result = decode_easter_eggs(img);
             }
             else
             {
-                dprintf("could not guess captcha type\n");
+                pwnprint("could not guess captcha type\n");
                 printf("\n");
                 image_free(img);
                 continue;
@@ -234,7 +241,7 @@ int main(int argc, char *argv[])
 
         if(!result)
         {
-            dprintf("sorry, decoding failed\n");
+            pwnprint("sorry, decoding failed\n");
             printf("\n");
             continue;
         }
@@ -247,7 +254,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void dprintf(const char *fmt, ...)
+void pwnprint(const char *fmt, ...)
 {
     va_list args;
 

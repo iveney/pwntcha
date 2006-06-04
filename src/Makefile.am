@@ -9,6 +9,7 @@ pwntcha_SOURCES = \
     common.h \
     authimage.c \
     clubic.c \
+    java.c \
     linuxfr.c \
     livejournal.c \
     lmt.c \

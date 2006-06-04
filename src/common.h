@@ -35,7 +35,7 @@ extern char *argv0;
 extern char *share;
 
 /* debug function */
-void dprintf(const char *fmt, ...);
+void pwnprint(const char *fmt, ...);
 
 /* available CAPTCHA decoders */
 char *decode_authimage(struct image *img);
