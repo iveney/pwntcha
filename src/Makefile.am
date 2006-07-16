@@ -18,6 +18,7 @@ pwntcha_SOURCES = \
     scode.c \
     slashdot.c \
     tickets.c \
+    ticketmaster.c \
     vbulletin.c \
     xanga.c \
     easter-eggs.c \

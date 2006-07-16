@@ -46,6 +46,8 @@ char *decode_paypal(struct image *img);
 char *decode_phpbb(struct image *img);
 char *decode_scode(struct image *img);
 char *decode_slashdot(struct image *img);
+char *decode_tickets(struct image *img);
+char *decode_ticketmaster(struct image *img);
 char *decode_vbulletin(struct image *img);
 char *decode_xanga(struct image *img);
 char *decode_test(struct image *img);

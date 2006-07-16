@@ -213,6 +213,11 @@ int main(int argc, char *argv[])
                 pwnprint("probably a java captcha\n");
                 result = decode_java(img);
             }
+            else if(img->width == 290 && img->height == 80)
+            {
+                pwnprint("probably a ticketmaster captcha\n");
+                result = decode_ticketmaster(img);
+            }
             else if(img->width == 200 && img->height == 40)
             {
                 pwnprint("probably a tickets.com captcha\n");
