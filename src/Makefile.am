@@ -1,4 +1,6 @@
-NULL = 
+
+SUBDIRS = authimage clubic java linuxfr livejournal lmt paypal phpbb scode \
+          slashdot ticketmaster tickets vbulletin xanga
 
 bin_PROGRAMS = pwntcha
 pwntcha_SOURCES = \
@@ -7,44 +9,27 @@ pwntcha_SOURCES = \
     font.c \
     image.c \
     common.h \
-    authimage.c \
-    clubic.c \
-    java.c \
-    linuxfr.c \
-    livejournal.c \
-    lmt.c \
-    paypal.c \
-    phpbb.c \
-    scode.c \
-    slashdot.c \
-    tickets.c \
-    ticketmaster.c \
-    vbulletin.c \
-    xanga.c \
     easter-eggs.c \
-    test.c
-pwntcha_CFLAGS = $(ADDITIONAL_CFLAGS) -Wall -O6
-pwntcha_LDFLAGS = $(ADDITIONAL_LDFLAGS)
-pwntcha_LDADD = $(ADDITIONAL_LDADD)
+    test.c \
+    $(NULL)
+pwntcha_CFLAGS = $(imaging_cflags) -Wall -O6
+pwntcha_LDFLAGS = $(imaging_ldflags)
+pwntcha_LDADD = $(SUBDIRS:%=%/libdecoder.a)
 
 if USE_SDL
-ADDITIONAL_CFLAGS = `sdl-config --cflags`
-ADDITIONAL_LDFLAGS = `sdl-config --libs` -lSDL_image
-ADDITIONAL_LDADD =
+imaging_cflags = `sdl-config --cflags`
+imaging_ldflags = `sdl-config --libs` -lSDL_image
 else
 if USE_IMLIB2
-ADDITIONAL_CFLAGS = `imlib2-config --cflags` -DX_DISPLAY_MISSING=1
-ADDITIONAL_LDFLAGS = `imlib2-config --libs`
-ADDITIONAL_LDADD =
+imaging_cflags = `imlib2-config --cflags` -DX_DISPLAY_MISSING=1
+imaging_ldflags = `imlib2-config --libs`
 else
 if USE_OPENCV
-ADDITIONAL_CFLAGS = `opencv-config --cflags`
-ADDITIONAL_LDFLAGS = `opencv-config --libs opencv highgui`
-ADDITIONAL_LDADD =
+imaging_cflags = `opencv-config --cflags`
+imaging_ldflags = `opencv-config --libs opencv highgui`
 else
-ADDITIONAL_CFLAGS =
-ADDITIONAL_LDFLAGS =
-ADDITIONAL_LDADD =
+imaging_cflags =
+imaging_ldflags =
 endif
 endif
 endif

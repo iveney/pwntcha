@@ -7,11 +7,12 @@ AM_INIT_AUTOMAKE([no-define tar-ustar])
 AM_CONFIG_HEADER(config.h)
 
 AC_PREREQ(2.50)
-dnlAC_CANONICAL_SYSTEM
+dnl AC_CANONICAL_SYSTEM
 
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
+AC_PROG_RANLIB
 AC_STDC_HEADERS
 
 AC_C_CONST
@@ -80,6 +81,20 @@ fi
 AC_OUTPUT([
   Makefile
   src/Makefile
+  src/authimage/Makefile
+  src/clubic/Makefile
+  src/java/Makefile
+  src/linuxfr/Makefile
+  src/livejournal/Makefile
+  src/lmt/Makefile
+  src/paypal/Makefile
+  src/phpbb/Makefile
+  src/scode/Makefile
+  src/slashdot/Makefile
+  src/ticketmaster/Makefile
+  src/tickets/Makefile
+  src/vbulletin/Makefile
+  src/xanga/Makefile
   extras/Makefile
   share/Makefile
 ])

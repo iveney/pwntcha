@@ -13,6 +13,7 @@ stamp-h1
 .deps
 .libs
 *.la
+*.a
 *.lo
 *.o
 src/pwntcha
