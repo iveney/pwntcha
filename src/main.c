@@ -3,10 +3,11 @@
  * $Id$
  *
  * Copyright: (c) 2004 Sam Hocevar <sam@zoy.org>
- *   This program is free software; you can redistribute it and/or
- *   modify it under the terms of the Do What The Fuck You Want To
- *   Public License as published by Banlu Kemiyatorn. See
- *   http://sam.zoy.org/projects/COPYING.WTFPL for more details.
+ *  This program is free software. It comes without any warranty, to
+ *  the extent permitted by applicable law. You can redistribute it
+ *  and/or modify it under the terms of the Do What The Fuck You Want
+ *  To Public License, Version 2, as published by Sam Hocevar. See
+ *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
 #include <stdio.h>
@@ -88,7 +89,7 @@ int main(int argc, char *argv[])
             share = optarg;
             break;
         case 'v': /* --version */
-            printf("pwntcha (captcha decoder) %s\n", VERSION);
+            printf("pwntcha (captcha decoder) %s\n", PACKAGE_VERSION);
             printf("Written by Sam Hocevar.\n");
             printf("\n");
             printf("Copyright (C) 2004-2005 Sam Hocevar <sam@zoy.org>\n");

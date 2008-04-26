@@ -1,13 +1,13 @@
 # $Id: configure.ac 253 2004-08-09 20:08:52Z sam $
 
-AC_INIT(src/main.c)
+AC_INIT(pwntcha, 0.6)
+AC_CONFIG_AUX_DIR(.auto)
+AM_INIT_AUTOMAKE([no-define tar-ustar])
+
+AM_CONFIG_HEADER(config.h)
 
 AC_PREREQ(2.50)
-AC_CONFIG_AUX_DIR(autotools)
-AC_CANONICAL_SYSTEM
-
-AM_INIT_AUTOMAKE(pwntcha, 0.5)
-AM_CONFIG_HEADER(config.h)
+dnlAC_CANONICAL_SYSTEM
 
 AC_PROG_CC
 AM_PROG_CC_C_O
