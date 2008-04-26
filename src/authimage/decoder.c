@@ -29,7 +29,7 @@ char *decode_authimage(struct image *img)
 
     if(!font)
     {
-        font = font_load_fixed("font_authimage.png",
+        font = font_load_fixed(DECODER, "font.png",
                                "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         if(!font)
             exit(-1);

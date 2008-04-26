@@ -52,7 +52,7 @@ static void find_glyphs(struct image *img)
 
     if(!font)
     {
-        font = font_load_variable("font_clubic.png", "0123456789");
+        font = font_load_variable(DECODER, "font.png", "0123456789");
         if(!font)
             exit(1);
     }

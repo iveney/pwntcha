@@ -120,13 +120,13 @@ static void find_glyphs(struct image *img)
     static struct font *fonts[FONTS];
     static char *files[] =
     {
-        "x_font_freemonobold_32_az.bmp", "abcdefghijklmnopqrstuvwxyz",
-        "x_font_freemonobold_24_az.bmp", "abcdefghijklmnopqrstuvwxyz",
-        "x_font_freesansbold_32_az.bmp", "abcdefghijklmnopqrstuvwxyz",
-        //"x_font_freeserifbold_32_az.bmp", "abcdefghijklmnopqrstuvwxyz",
-        "x_font_comic_32_az.bmp", "abcdefghijklmnopqrstuvwxyz",
-        "x_font_comic_24_az_messed.bmp", "abcdefghijklmnopqrstuvwxyz",
-        "x_font_freesansbold_36_az_messed.bmp", "abcdefghijklmnopqrstuvwxyz",
+        "x_freemonobold_32_az.bmp", "abcdefghijklmnopqrstuvwxyz",
+        "x_freemonobold_24_az.bmp", "abcdefghijklmnopqrstuvwxyz",
+        "x_freesansbold_32_az.bmp", "abcdefghijklmnopqrstuvwxyz",
+        //"x_freeserifbold_32_az.bmp", "abcdefghijklmnopqrstuvwxyz",
+        "x_comic_32_az.bmp", "abcdefghijklmnopqrstuvwxyz",
+        "x_comic_24_az_messed.bmp", "abcdefghijklmnopqrstuvwxyz",
+        "x_freesansbold_36_az_messed.bmp", "abcdefghijklmnopqrstuvwxyz",
     };
     struct image *tmp;
     int x, y, i = 0, f;
@@ -138,7 +138,8 @@ static void find_glyphs(struct image *img)
     {
         if(!fonts[f])
         {
-            fonts[f] = font_load_variable(files[f * 2], files[f * 2 + 1]);
+            fonts[f] = font_load_variable(DECODER,
+                                          files[f * 2], files[f * 2 + 1]);
             if(!fonts[f])
                 exit(1);
             //filter_smooth(fonts[f]->img);

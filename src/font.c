@@ -17,15 +17,21 @@
 #include "config.h"
 #include "common.h"
 
-struct font *font_load_fixed(char *file, char *chars)
+struct font *font_load_fixed(char const *decoder, char const *file,
+                             char const *chars)
 {
     char fontname[BUFSIZ];
     struct font *font;
     struct image *img;
     int i;
 
-    sprintf(fontname, "%s/%s", share, file);
+    sprintf(fontname, "src/%s/%s", decoder, file);
     img = image_load(fontname);
+    if(!img)
+    {
+        sprintf(fontname, "%s/%s/%s", share, decoder, file);
+        img = image_load(fontname);
+    }
     if(!img)
     {
         fprintf(stderr, "%s: cannot load font %s\n", argv0, fontname);
@@ -50,7 +56,8 @@ struct font *font_load_fixed(char *file, char *chars)
     return font;
 }
 
-struct font *font_load_variable(char *file, char *chars)
+struct font *font_load_variable(char const *decoder, char const *file,
+                                char const *chars)
 {
     char fontname[BUFSIZ];
     struct font *font;
@@ -59,8 +66,13 @@ struct font *font_load_variable(char *file, char *chars)
     int x, y, i;
     int r, g, b;
 
-    sprintf(fontname, "%s/%s", share, file);
+    sprintf(fontname, "src/%s/%s", decoder, file);
     img = image_load(fontname);
+    if(!img)
+    {
+        sprintf(fontname, "%s/%s/%s", share, decoder, file);
+        img = image_load(fontname);
+    }
     if(!img)
     {
         fprintf(stderr, "%s: cannot load font %s\n", argv0, fontname);

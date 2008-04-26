@@ -55,7 +55,7 @@ static void find_glyphs(struct image *img)
 
     if(!font)
     {
-        font = font_load_variable("font_freesans_24_09AZ.bmp",
+        font = font_load_variable(DECODER, "freesans_24_09AZ.bmp",
                                   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         filter_smooth(font->img);
         if(!font)

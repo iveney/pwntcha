@@ -190,7 +190,8 @@ static void find_glyphs(struct image *img)
 
     if(!font)
     {
-        font = font_load_variable("font_slashdot.png", "abcdefgijkmnpqrstvwxyz");
+        font = font_load_variable(DECODER, "font.png",
+                                  "abcdefgijkmnpqrstvwxyz");
         if(!font)
             exit(1);
     }

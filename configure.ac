@@ -96,6 +96,5 @@ AC_OUTPUT([
   src/vbulletin/Makefile
   src/xanga/Makefile
   extras/Makefile
-  share/Makefile
 ])
 

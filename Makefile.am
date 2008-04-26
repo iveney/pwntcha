@@ -1,7 +1,6 @@
-NULL = 
 
 SUBDIRS = src
-DIST_SUBDIRS = $(SUBDIRS) extras share
+DIST_SUBDIRS = $(SUBDIRS) extras
 
 EXTRA_DIST = \
 	bootstrap \

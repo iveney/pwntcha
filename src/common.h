@@ -65,9 +65,9 @@ int getpixel(struct image *img, int x, int y, int *r, int *g, int *b);
 int setpixel(struct image *img, int x, int y, int r, int g, int b);
 
 /* font operations */
-struct font *font_load_fixed(char *file, char *chars);
-struct font *font_load_variable(char *file, char *chars);
-void font_free(struct font *font);
+struct font *font_load_fixed(char const *, char const *, char const *);
+struct font *font_load_variable(char const *, char const *, char const *);
+void font_free(struct font *);
 
 /* image filters */
 void filter_flood_fill(struct image *img, int x, int y, int r, int g, int b);

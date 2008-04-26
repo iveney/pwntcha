@@ -47,8 +47,8 @@ static void find_glyphs(struct image *img)
     static struct font *fonts[FONTS];
     static char *files[] =
     {
-        "font_stencil_23_AZ.bmp", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-        "font_stencil_24_AZ.bmp", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "stencil_23_AZ.bmp", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "stencil_24_AZ.bmp", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
     };
     int x, y, i = 0, f;
     int r, g, b;
@@ -59,7 +59,8 @@ static void find_glyphs(struct image *img)
     {
         if(!fonts[f])
         {
-            fonts[f] = font_load_variable(files[f * 2], files[f * 2 + 1]);
+            fonts[f] = font_load_variable(DECODER,
+                                          files[f * 2], files[f * 2 + 1]);
             if(!fonts[f])
                 exit(1);
         }

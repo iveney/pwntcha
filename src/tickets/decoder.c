@@ -34,8 +34,8 @@ char *decode_tickets(struct image *img)
         if(!fonts[i])
         {
             char buf[BUFSIZ];
-            sprintf(buf, "font_tickets%i.png", i + 1);
-            fonts[i] = font_load_variable(buf, "0123456789");
+            sprintf(buf, "font%i.png", i + 1);
+            fonts[i] = font_load_variable(DECODER, buf, "0123456789");
             if(!fonts[i])
                 exit(-1);
         }

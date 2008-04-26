@@ -29,7 +29,7 @@ char *decode_linuxfr(struct image *img)
 
     if(!font)
     {
-        font = font_load_fixed("font_linuxfr.png",
+        font = font_load_fixed(DECODER, "font.png",
                                "abcdefghijklmnopqrstuvwxyz"
                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                "0123456789");

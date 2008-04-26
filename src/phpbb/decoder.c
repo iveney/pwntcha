@@ -31,7 +31,7 @@ char *decode_phpbb(struct image *img)
 
     if(!font)
     {
-        font = font_load_fixed("font_phpbb.png",
+        font = font_load_fixed(DECODER, "font.png",
                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789");
         if(!font)
             exit(-1);

@@ -29,7 +29,7 @@ char *decode_vbulletin(struct image *img)
 
     if(!font)
     {
-        font = font_load_fixed("font_vbulletin.png",
+        font = font_load_fixed(DECODER, "font.png",
                                "2346789ABCDEFGHJKLMNPRTWXYZ");
         if(!font)
             exit(-1);
