@@ -25,8 +25,9 @@ imaging_cflags = `imlib2-config --cflags` -DX_DISPLAY_MISSING=1
 imaging_ldflags = `imlib2-config --libs`
 else
 if USE_OPENCV
-imaging_cflags = `opencv-config --cflags`
-imaging_ldflags = `opencv-config --libs opencv highgui`
+imaging_cflags = `pkg-config opencv --cflags`
+#imaging_ldflags = `pkg-config opencv --libs opencv highgui`
+imaging_ldflags = `pkg-config opencv --libs`
 else
 imaging_cflags =
 imaging_ldflags =
