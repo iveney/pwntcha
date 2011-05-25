@@ -173,7 +173,7 @@ void image_save(struct image *img, const char *name)
     imlib_context_set_image(img->priv);
     imlib_save_image(name);
 #elif defined(HAVE_CV_H)
-    cvSaveImage(name, img->priv);
+    cvSaveImage(name, img->priv, 0);
 #endif
 }
 
