@@ -51,9 +51,15 @@ AM_CONDITIONAL(USE_SDL, test "${ac_cv_my_have_sdl}" = "yes")
 # Use OpenCV?
 ac_cv_my_have_opencv="no"
 save_CPPFLAGS="${CPPFLAGS}"
-AC_PATH_PROG(OPENCV_CONFIG, opencv-config, no)
+pkg-config opencv --exists
+if test "$?" != "1"; then
+  OPENCV_CONFIG="pkg-config opencv"
+else
+  OPENCV_CONFIG="no"
+fi
+#AC_PATH_PROG(OPENCV_CONFIG, opencv-config, no)
 if test "${OPENCV_CONFIG}" != "no"; then
-  CPPFLAGS="${CPPFLAGS} `opencv-config --cflags`"
+  CPPFLAGS="${CPPFLAGS} `pkg-config opencv --cflags`"
 fi
 AC_CHECK_HEADERS(cv.h,
  [ac_cv_my_have_opencv="yes"],
