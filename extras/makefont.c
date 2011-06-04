@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
     /* Render text to surface */
     TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-    surface = TTF_RenderUTF8_Shaded(font, text, fg, bg);
+    surface = TTF_RenderUTF8_Shaded(font, (const char *)text, fg, bg);
     if(!surface)
     {
         fprintf(stderr, "surface rendering failed: %s\n", SDL_GetError());
