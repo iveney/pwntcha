@@ -89,6 +89,7 @@ AC_OUTPUT([
   src/Makefile
   src/authimage/Makefile
   src/clubic/Makefile
+  src/htmlformguide/Makefile
   src/java/Makefile
   src/linuxfr/Makefile
   src/livejournal/Makefile

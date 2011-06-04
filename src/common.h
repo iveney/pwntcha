@@ -41,8 +41,12 @@ void pwnprint(const char *fmt, ...);
 /* available CAPTCHA decoders */
 char *decode_authimage(struct image *img);
 char *decode_clubic(struct image *img);
+char *decode_easter_eggs(struct image *img);
+char *decode_htmlformguide(struct image *img);
+char *decode_java(struct image *img);
 char *decode_linuxfr(struct image *img);
 char *decode_livejournal(struct image *img);
+char *decode_lmt(struct image *img);
 char *decode_paypal(struct image *img);
 char *decode_phpbb(struct image *img);
 char *decode_scode(struct image *img);

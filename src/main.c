@@ -137,6 +137,8 @@ int main(int argc, char *argv[])
             result = decode_authimage(img);
         else if(!strcmp(mode, "clubic"))
             result = decode_clubic(img);
+        else if(!strcmp(mode, "htmlformguide"))
+            result = decode_htmlformguide(img);
         else if(!strcmp(mode, "java"))
             result = decode_java(img);
         else if(!strcmp(mode, "linuxfr"))
@@ -163,6 +165,11 @@ int main(int argc, char *argv[])
             {
                 pwnprint("probably an authimage captcha\n");
                 result = decode_authimage(img);
+            }
+            else if(img->width == 120 && img->height == 40)
+            {
+                pwnprint("probably a htmlformguide captcha\n");
+                result = decode_htmlformguide(img);
             }
             else if(img->width == 175 && img->height == 35)
             {
