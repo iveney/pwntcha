@@ -461,3 +461,22 @@ int filter_count(struct image *img)
     return count;
 }
 
+void filter_greyscale(struct image *img)
+{
+    struct image *dst;
+    int x, y, i, min = 255, max = 0;
+    int r, g, b;
+
+    dst = image_new(img->width, img->height);
+
+    for(y = 0; y < img->height; y++)
+        for(x = 0; x < img->width; x++)
+        {
+            getpixel(img, x, y, &r, &g, &b);
+	    int gray = (r + g + b) / 3;
+            setpixel(dst, x, y, gray, gray, gray);
+        }
+
+    image_swap(img, dst);
+    image_free(dst);
+}

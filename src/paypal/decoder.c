@@ -14,11 +14,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <math.h>
 
 #include "config.h"
 #include "common.h"
 
 static void find_glyphs(struct image *img);
+static int vertical_pixel_count(struct image *img, int x);
+static int horizontal_pixel_count(struct image *img, int y);
 
 /* Our macros */
 char *result;
@@ -33,6 +36,55 @@ char *decode_paypal(struct image *img)
     strcpy(result, "        ");
 
     tmp = image_dup(img);
+
+    /* apply greyscale filter */
+    filter_greyscale(tmp);
+
+    /* thresholding */
+    filter_threshold(tmp, 30);
+
+    /* further cleaning */
+    int x, y, r, g, b;
+    for(y = 0; y < img->height; y++)
+    {
+        /* check horizontally to get rid of (horizontal)lines with just a few pixel on */
+        int count = horizontal_pixel_count(tmp, y);
+        if ((count > 0) && (count < 6))
+        {
+            for(x = 0; x < tmp->width; x++)
+            {
+                setpixel(tmp, x, y, 255, 255, 255);
+            }
+        }
+
+        /* get rid of some remaining noise pixels */
+        for(x = 0; x < tmp->width; x++)
+        {
+            getpixel(tmp, x, y, &r, &g, &b);
+
+            if ((x > 0) && (y > 0) && (x < tmp->width-1) && (y < tmp->height-1))
+            {
+                int ra, rb, rc, rd, re, rf, rg, rh;
+
+                getpixel(tmp, x-1, y-1, &ra, &g, &b);
+                getpixel(tmp, x, y-1, &rb, &g, &b);
+                getpixel(tmp, x+1, y-1, &rc, &g, &b);
+		getpixel(tmp, x-1, y, &rd, &g, &b);
+		getpixel(tmp, x+1, y, &re, &g, &b);
+                getpixel(tmp, x-1, y+1, &rf, &g, &b);
+                getpixel(tmp, x, y+1, &rg, &g, &b);
+                getpixel(tmp, x+1, y+1, &rh, &g, &b);
+
+		if ((ra + rb + rc + rd + re + rf + rg + rh) >= 2040)
+                {
+                    setpixel(tmp, x, y, 255, 255, 255);
+                }
+            }
+        }
+    }
+
+    //image_save(tmp, "output.bmp");
+
     find_glyphs(tmp);
 
     image_free(tmp);
@@ -42,99 +94,188 @@ char *decode_paypal(struct image *img)
 
 static void find_glyphs(struct image *img)
 {
-#define DELTA 2
-#define FONTS 2
-    static struct font *fonts[FONTS];
-    static char *files[] =
-    {
-        "stencil_23_AZ.bmp", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-        "stencil_24_AZ.bmp", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    };
-    int x, y, i = 0, f;
-    int r, g, b;
-    int xmin, xmax, ymin, ymax, startx = 0, cur = 0;
-    int bestdist, bestfont, bestx, besty, bestch;
+    #define TEMPLATE_GLYPHS_NUM 153
+    int x = 0, y, z, r, g, b;
+    int xmin = 0, xmax = 0, ymin = 0, ymax = 0;
+    int cur = 0;
+    char *tmplmap;
+    char filename[64];
 
-    for(f = 0; f < FONTS; f++)
+    /* read char template mapping file */
+    sprintf(filename, "src/%s/templates/tmpl.map", DECODER);
+    FILE *fh = fopen(filename, "rb");	
+    if(!fh)
     {
-        if(!fonts[f])
+        sprintf(filename, "%s/%s/templates/tmpl.map", share, DECODER);
+        fh = fopen(filename, "r");
+    }
+    if(!fh)
+    {
+        fprintf(stderr, "%s: cannot load template map %s\n", argv0, filename);
+        return;
+    }
+
+    tmplmap = malloc(1024);
+    if (fread (tmplmap, 1, TEMPLATE_GLYPHS_NUM, fh) != TEMPLATE_GLYPHS_NUM) 
+    {
+        fprintf(stderr, "%s: cannot read template map %s\n", argv0, filename);
+        return;
+    }
+    fclose(fh);
+
+    /* locate min and max y */
+    for(y = 0; y < img->height; y++)
+    {
+        if (horizontal_pixel_count(img, y) > 0)
         {
-            fonts[f] = font_load_variable(DECODER,
-                                          files[f * 2], files[f * 2 + 1]);
-            if(!fonts[f])
-                exit(1);
+            ymin = y;
+            break;
+        }
+    }
+    for(y = img->height-1; y >= 0; y--)
+    {
+        if (horizontal_pixel_count(img, y) > 0)
+        {
+            ymax = y;
+            break;
         }
     }
 
-    while(cur < 8)
+    /* proceed to segmentation */
+    while ((cur < 8) && (x < img->width))
     {
-        /* Try to find 1st letter */
-        bestdist = INT_MAX;
-        for(f = 0; f < FONTS; f++) for(i = 0; i < fonts[f]->size; i++)
+        int count = vertical_pixel_count(img, x);
+
+        if (count > 0)
         {
-            int localmin = INT_MAX, localx, localy;
-            xmin = fonts[f]->glyphs[i].xmin - DELTA;
-            ymin = fonts[f]->glyphs[i].ymin;
-            xmax = fonts[f]->glyphs[i].xmax + DELTA;
-            ymax = fonts[f]->glyphs[i].ymax;
-            for(y = -3; y < 1; y++)
+            for (xmax = x+11 ; xmax < img->width; xmax++)
             {
-                for(x = startx; x < startx + 15; x++)
+		if (vertical_pixel_count(img, xmax) == 0) 
                 {
-                    int z, t, dist;
-                    dist = 0;
-                    for(t = 0; t < ymax - ymin; t++)
-                        for(z = 0; z < xmax - xmin; z++)
-                        {
-                            int r2;
-                            getgray(fonts[f]->img, xmin + z, ymin + t, &r);
-                            getgray(img, x + z, y + t, &r2);
-                            if(r < r2)
-                                dist += (r - r2) * (r - r2);
-                            else
-                                dist += (r - r2) * (r - r2) / 2;
-                        }
-                    //dist = dist * 128 / fonts[f]->glyphs[i].count;
-                    dist  = dist / (xmax - xmin - 2 * DELTA) / (xmax - xmin - 2 * DELTA);
-                    if(dist < localmin)
+                    xmin = x;
+                    x = xmax;
+                    break;
+                }
+            }
+
+            //printf("glyph at %d:%d to %d:%d\n", xmin, ymin, xmax, ymax);
+
+            /* here a glyph is located, crop it */
+
+            struct image *_tmp = image_dup(img);
+            filter_crop(_tmp, xmin, ymin, xmax, ymax);
+
+            /* saving tmp here lead to save a template glyph */
+            //sprintf(filename, "glyph_%02d.bmp", cur);
+            //image_save(_tmp, filename);
+
+            struct image *tmp = image_new(20, 20);
+            filter_flood_fill(tmp, 0, 0, 255, 255, 255);
+            int c, d;
+            for (d = 0 ; d < _tmp->height; d++)
+            {
+                for (c = 0 ; c < _tmp->width; c++)
+                {
+                    getpixel(_tmp, c, d, &r, &g, &b);
+                    setpixel(tmp, c, d, r, g, b);
+                }
+            }	
+            image_free(_tmp);
+
+            int bestdist = INT_MAX;
+            int besttmpl = 0;
+
+            /* look in all templates */
+            for (z = 0; z < TEMPLATE_GLYPHS_NUM; z++)
+            {
+                sprintf(filename, "src/%s/templates/tmpl_%03d.bmp", DECODER, z);
+                struct image *_tmpl = image_load(filename);
+                if(!_tmpl)
+                {
+                    sprintf(filename, "%s/%s/templates/tmpl_%03d.bmp", share, DECODER, z);
+                    _tmpl = image_load(filename);
+                }
+                if(!_tmpl)
+                {
+                    fprintf(stderr, "%s: cannot load template %s\n", argv0, filename);
+                    return;
+                }
+                struct image *tmpl = image_new(20, 20);
+                filter_flood_fill(tmpl, 0, 0, 255, 255, 255);
+                for (d = 0 ; d < _tmpl->height; d++)
+                {
+                    for (c = 0 ; c < _tmpl->width; c++)
                     {
-                        localmin = dist;
-                        localx = x;
-                        localy = y;
+                        getpixel(_tmpl, c, d, &r, &g, &b);
+                        setpixel(tmpl, c, d, r, g, b);
                     }
-                }
-            }
-            if(localmin < bestdist)
-            {
-                bestdist = localmin;
-                bestfont = f;
-                bestx = localx;
-                besty = localy;
-                bestch = i;
-            }
-        }
+                }	
+                image_free(_tmpl);
 
-        /* Print min glyph */
-#if 0
-        xmin = fonts[bestfont]->glyphs[bestch].xmin - DELTA;
-        ymin = fonts[bestfont]->glyphs[bestch].ymin;
-        xmax = fonts[bestfont]->glyphs[bestch].xmax + DELTA;
-        ymax = fonts[bestfont]->glyphs[bestch].ymax;
-        for(y = 0; y < ymax - ymin; y++)
-            for(x = 0; x < xmax - xmin; x++)
-            {
-                getpixel(fonts[bestfont]->img, xmin + x, ymin + y, &r, &g, &b);
-                if(r > 128)
+                /* try to find the template that fits the best */
+                int s, t, dist;
+                dist = 0;
+                for(t = 0; t < 20; t++)
+                    for(s= 0; s < 20; s++)
+                    {
+                        int r2;
+                        getgray(tmpl, s, t, &r);
+                        getgray(tmp, s, t, &r2);
+                        dist += abs(r - r2);
+                    }
+
+		if (dist < bestdist)
                 {
-                    getpixel(img, bestx + x, besty + y, &r, &g, &b);
-                    r = 255;
+                    bestdist = dist;
+                    besttmpl = z;
                 }
-                setpixel(img, bestx + x, besty + y, r, g, b);
-            }
-#endif
 
-        startx = bestx + fonts[bestfont]->glyphs[bestch].xmax - fonts[bestfont]->glyphs[bestch].xmin;
-        result[cur++] = fonts[bestfont]->glyphs[bestch].c;
+                image_free(tmpl);
+            }
+
+            //printf("bestdist=%d with tmpl_%03d.bmp char: %c\n", bestdist, besttmpl, tmplmap[besttmpl]);
+
+            result[cur++] = tmplmap[besttmpl];
+        }
+        x++;
     }
+
+    free(tmplmap);
+}
+
+static int vertical_pixel_count(struct image *img, int x)
+{
+    int y, r, g, b;
+    int count = 0;
+
+    for(y = 0; y < img->height; y++)
+    {
+        getpixel(img, x, y, &r, &g, &b);
+
+        if ((r + g + b) == 0)
+        {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+static int horizontal_pixel_count(struct image *img, int y)
+{
+    int x, r, g, b;
+    int count = 0;
+
+    for(x = 0; x < img->width; x++)
+    {
+        getpixel(img, x, y, &r, &g, &b);
+
+        if ((r + g + b) == 0)
+        {
+            count++;
+        }
+    }
+
+    return count;
 }
 
