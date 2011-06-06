@@ -94,6 +94,7 @@ AC_OUTPUT([
   src/linuxfr/Makefile
   src/livejournal/Makefile
   src/lmt/Makefile
+  src/movabletype/Makefile
   src/paypal/Makefile
   src/phpbb/Makefile
   src/scode/Makefile

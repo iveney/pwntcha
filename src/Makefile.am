@@ -1,6 +1,6 @@
 
-SUBDIRS = authimage clubic htmlformguide java linuxfr livejournal lmt paypal phpbb scode \
-          slashdot ticketmaster tickets vbulletin xanga
+SUBDIRS = authimage clubic htmlformguide java linuxfr livejournal lmt movabletype \
+          paypal phpbb scode slashdot ticketmaster tickets vbulletin xanga
 
 bin_PROGRAMS = pwntcha
 pwntcha_SOURCES = \

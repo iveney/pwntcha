@@ -232,6 +232,7 @@ static void find_glyphs(struct image *img)
 
                 image_free(tmpl);
             }
+            image_free(tmp);
 
             //printf("bestdist=%d with tmpl_%03d.bmp char: %c\n", bestdist, besttmpl, tmplmap[besttmpl]);
 

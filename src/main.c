@@ -147,6 +147,8 @@ int main(int argc, char *argv[])
             result = decode_livejournal(img);
         else if(!strcmp(mode, "lmt"))
             result = decode_lmt(img);
+        else if(!strcmp(mode, "movabletype"))
+            result = decode_movabletype(img);
         else if(!strcmp(mode, "paypal"))
             result = decode_paypal(img);
         else if(!strcmp(mode, "phpbb"))
@@ -185,6 +187,11 @@ int main(int argc, char *argv[])
             {
                 pwnprint("probably a lmt.lv captcha\n");
                 result = decode_lmt(img);
+            }
+            else if(img->width == 152 && img->height == 37)
+            {
+                pwnprint("probably a MovableType captcha\n");
+                result = decode_movabletype(img);
             }
             else if(img->width == 208 && img->height == 26)
             {
