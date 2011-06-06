@@ -86,4 +86,5 @@ void filter_median(struct image *img);
 void filter_contrast(struct image *img);
 void filter_crop(struct image *img, int xmin, int ymin, int xmax, int ymax);
 int filter_count(struct image *img);
+void filter_greyscale(struct image *img);
 
