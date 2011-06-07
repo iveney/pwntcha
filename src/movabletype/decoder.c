@@ -36,21 +36,8 @@ char *decode_movabletype(struct image *img)
 
     tmp = image_dup(img);
 
-    int x, y, z, r, g, b;
-
-    /* get rid of borders noise */
-    for(x = 0; x < tmp->width; x++)
-    {
-        setpixel(tmp, x, 0, 255, 255, 255);
-        setpixel(tmp, x, tmp->height-1, 255, 255, 255);
-    }
-    for(y = 0; y < tmp->height; y++)
-    {
-        setpixel(tmp, 0, y, 255, 255, 255);
-        setpixel(tmp, tmp->width-1, y, 255, 255, 255);
-    }
-
     /* further cleaning */
+    int x, y, z, r, g, b;
     for (z=0; z<3; z++)
     {
         for(y = 0; y < tmp->height; y++)
@@ -140,7 +127,7 @@ static void find_glyphs(struct image *img)
             xmax = font->glyphs[i].xmax + DELTA;
             ymax = font->glyphs[i].ymax;
 
-            for(x = startx; x < startx + 22; x++)
+            for(x = startx; x < startx + 21; x++)
             {
                 int z, t, dist;
                 dist = 0;
@@ -159,6 +146,7 @@ static void find_glyphs(struct image *img)
                     localx = x;
                 }
             }
+
             if(localmin < bestdist)
             {
                 bestdist = localmin;
