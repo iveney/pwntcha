@@ -67,13 +67,13 @@ char *decode_movabletype(struct image *img)
                     getpixel(tmp, x-1, y-1, &ra, &g, &b);
                     getpixel(tmp, x, y-1, &rb, &g, &b);
                     getpixel(tmp, x+1, y-1, &rc, &g, &b);
-		    getpixel(tmp, x-1, y, &rd, &g, &b);
-		    getpixel(tmp, x+1, y, &re, &g, &b);
+                    getpixel(tmp, x-1, y, &rd, &g, &b);
+                    getpixel(tmp, x+1, y, &re, &g, &b);
                     getpixel(tmp, x-1, y+1, &rf, &g, &b);
                     getpixel(tmp, x, y+1, &rg, &g, &b);
                     getpixel(tmp, x+1, y+1, &rh, &g, &b);
 
-		    if (!((ra==0)||(rb==0)||(rc==0)||(rd==0)||(re==0)||(rf==0)||(rg==0)||(rh==0)))
+                    if (!((ra==0)||(rb==0)||(rc==0)||(rd==0)||(re==0)||(rf==0)||(rg==0)||(rh==0)))
                     {
                         setpixel(tmp, x, y, 255, 255, 255);
                     }
@@ -134,7 +134,7 @@ static void find_glyphs(struct image *img)
         bestdist = INT_MAX;
         for(i = 0; i < font->size; i++)
         {
-            int localmin = INT_MAX, localx, localy;
+            int localmin = INT_MAX, localx;
             xmin = font->glyphs[i].xmin - DELTA;
             ymin = font->glyphs[i].ymin;
             xmax = font->glyphs[i].xmax + DELTA;
