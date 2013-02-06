@@ -1,8 +1,8 @@
 /*
- * paypal.c: decode Paypal captchas
+ * decoder.c: decode MovableType captchas
  * $Id$
  *
- * modified by jimmikaelkael <jimmikaelkael@wanadoo.fr>
+ * contributed by jimmikaelkael <jimmikaelkael@wanadoo.fr>
  *
  * Copyright: (c) 2005 Sam Hocevar <sam@zoy.org>
  *  This program is free software. It comes without any warranty, to
@@ -26,73 +26,70 @@ static void find_glyphs(struct image *img);
 char *result;
 
 /* Main function */
-char *decode_paypal(struct image *img)
+char *decode_movabletype(struct image *img)
 {
     struct image *tmp;
 
-    /* paypal captchas have 8 characters */
-    result = malloc(9 * sizeof(char));
-    strcpy(result, "        ");
+    /* lmt captchas have 6 characters */
+    result = malloc(7 * sizeof(char));
+    strcpy(result, "      ");
 
     tmp = image_dup(img);
 
-    /* apply greyscale filter */
-    filter_greyscale(tmp);
-
-    /* thresholding */
-    filter_threshold(tmp, 30);
-
     /* further cleaning */
-    int x, y, r, g, b;
-    for(y = 0; y < tmp->height; y++)
+    int x, y, z, r, g, b;
+    for (z=0; z<3; z++)
     {
-        /* check horizontally to get rid of (horizontal)lines with just a few pixel on */
-        int count = 0;
-        for(x = 0; x < tmp->width; x++)
+        for(y = 0; y < tmp->height; y++)
         {
-            getpixel(tmp, x, y, &r, &g, &b);
-
-            if ((r + g + b) == 0)
-            {
-                count++;
-            }
-        }
-
-        if ((count > 0) && (count < 6))
-        {
+            /* get rid of some remaining noise pixels */
             for(x = 0; x < tmp->width; x++)
             {
-                setpixel(tmp, x, y, 255, 255, 255);
+                getpixel(tmp, x, y, &r, &g, &b);
+
+                if ((x > 0) && (y > 0) && (x < tmp->width-1) && (y < tmp->height-1))
+                {
+                    int ra, rb, rc, rd, re, rf, rg, rh;
+
+                    getpixel(tmp, x-1, y-1, &ra, &g, &b);
+                    getpixel(tmp, x, y-1, &rb, &g, &b);
+                    getpixel(tmp, x+1, y-1, &rc, &g, &b);
+                    getpixel(tmp, x-1, y, &rd, &g, &b);
+                    getpixel(tmp, x+1, y, &re, &g, &b);
+                    getpixel(tmp, x-1, y+1, &rf, &g, &b);
+                    getpixel(tmp, x, y+1, &rg, &g, &b);
+                    getpixel(tmp, x+1, y+1, &rh, &g, &b);
+
+                    if (!((ra==0)||(rb==0)||(rc==0)||(rd==0)||(re==0)||(rf==0)||(rg==0)||(rh==0)))
+                    {
+                        setpixel(tmp, x, y, 255, 255, 255);
+                    }
+                }
             }
         }
+        filter_detect_lines(tmp);
+        filter_black_stuff(tmp);
+    }
 
+    filter_median(tmp);
+    filter_black_stuff(tmp);
+
+    for(y = 0; y < tmp->height; y++)
+    {
         /* get rid of some remaining noise pixels */
         for(x = 0; x < tmp->width; x++)
         {
             getpixel(tmp, x, y, &r, &g, &b);
-
-            if ((x > 0) && (y > 0) && (x < tmp->width-1) && (y < tmp->height-1))
+            if ((r + g + b) > 0)
             {
-                int ra, rb, rc, rd, re, rf, rg, rh;
-
-                getpixel(tmp, x-1, y-1, &ra, &g, &b);
-                getpixel(tmp, x, y-1, &rb, &g, &b);
-                getpixel(tmp, x+1, y-1, &rc, &g, &b);
-                getpixel(tmp, x-1, y, &rd, &g, &b);
-                getpixel(tmp, x+1, y, &re, &g, &b);
-                getpixel(tmp, x-1, y+1, &rf, &g, &b);
-                getpixel(tmp, x, y+1, &rg, &g, &b);
-                getpixel(tmp, x+1, y+1, &rh, &g, &b);
-
-                if ((ra + rb + rc + rd + re + rf + rg + rh) >= 2040)
-                {
-                    setpixel(tmp, x, y, 255, 255, 255);
-                }
+                setpixel(tmp, x, y, 255, 255, 255);
             }
         }
+    
     }
 
-    //image_save(tmp, "output.bmp");
+    filter_black_stuff(tmp);
+    filter_fill_holes(tmp);
 
     find_glyphs(tmp);
 
@@ -103,7 +100,7 @@ char *decode_paypal(struct image *img)
 
 static void find_glyphs(struct image *img)
 {
-#define DELTA 2
+#define DELTA 4
     static struct font *font;
     int x, y, i = 0;
     int r, g, b;
@@ -112,13 +109,13 @@ static void find_glyphs(struct image *img)
 
     if(!font)
     {
-        font = font_load_variable(DECODER, "paypal.bmp",
-                                  "23456789ABCDEFGHJKLMNPRSTUVWXYZ");
+        font = font_load_variable(DECODER, "movabletype.bmp",
+                                  "23456789abcdefghjkmnpqrstuvwxyz");
         if(!font)
             exit(1);
     }
 
-    while(cur < 8)
+    while(cur < 6)
     {
         /* Try to find 1st letter */
         bestdist = INT_MAX;
@@ -130,7 +127,7 @@ static void find_glyphs(struct image *img)
             xmax = font->glyphs[i].xmax + DELTA;
             ymax = font->glyphs[i].ymax;
 
-            for(x = startx; x < startx + 18; x++)
+            for(x = startx; x < startx + 21; x++)
             {
                 int z, t, dist;
                 dist = 0;
@@ -139,7 +136,7 @@ static void find_glyphs(struct image *img)
                     {
                         int r2;
                         getgray(font->img, xmin + z, ymin + t, &r);
-                        getgray(img, x + z, 5 + t, &r2); /* our font mapping is fixed at 5px vertically */
+                        getgray(img, x + z, t, &r2);
                         dist += (r - r2) * (r - r2);
                     }
                 dist  = dist / (xmax - xmin - 2 * DELTA);
@@ -149,6 +146,7 @@ static void find_glyphs(struct image *img)
                     localx = x;
                 }
             }
+
             if(localmin < bestdist)
             {
                 bestdist = localmin;

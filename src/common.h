@@ -47,6 +47,7 @@ char *decode_java(struct image *img);
 char *decode_linuxfr(struct image *img);
 char *decode_livejournal(struct image *img);
 char *decode_lmt(struct image *img);
+char *decode_movabletype(struct image *img);
 char *decode_paypal(struct image *img);
 char *decode_phpbb(struct image *img);
 char *decode_scode(struct image *img);
