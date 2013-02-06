@@ -77,9 +77,10 @@ static void find_glyphs(struct image *img)
             ymin = font->glyphs[i].ymin;
             xmax = font->glyphs[i].xmax + DELTA;
             ymax = font->glyphs[i].ymax;
-            for(y = -5; y < 5; y++)
+
+            for(y = -3; y < 3; y++)
             {
-                for(x = startx; x < startx + 15; x++)
+                for(x = startx; x < startx + 16; x++)
                 {
                     int z, t, dist;
                     dist = 0;
