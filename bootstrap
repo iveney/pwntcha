@@ -34,8 +34,10 @@ header="`grep -q '^[ \t]*A._CONFIG_HEADER' $conffile && echo yes || echo no`"
 aclocalflags="`sed -ne 's/^[ \t]*ACLOCAL_AMFLAGS[ \t]*=//p' Makefile.am`"
 
 # Check for automake
+#   Honestly, doing this right would mean using m4_version compare
+#   but I don't want to re-do all of this right now
 amvers="no"
-for v in 11 10 9 8 7 6 5; do
+for v in 15 14 13 12 11 10 9 8 7 6 5; do
   if automake-1.${v} --version >/dev/null 2>&1; then
     amvers="-1.${v}"
     break
