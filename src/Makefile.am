@@ -13,7 +13,7 @@ pwntcha_SOURCES = \
     test.c \
     $(NULL)
 pwntcha_CFLAGS = $(imaging_cflags) -Wall -O6
-pwntcha_LDFLAGS = $(imaging_ldflags)
+pwntcha_LDFLAGS = -lm $(imaging_ldflags)
 pwntcha_LDADD = $(SUBDIRS:%=%/libdecoder.a)
 
 if USE_SDL
